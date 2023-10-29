@@ -62,15 +62,14 @@ export default function SignUp() {
                   <FcGoogle style={{ fontSize: "24px" }} /> Sign in with Google
                 </button>
               </div>
-              <label className="label ">
-                <a className="label-text-alt">
-                  You already have an account?
-                  <Link className="link link-hover" to={"/sign-in"}>
-                    {" "}
-                    Sign up
-                  </Link>
-                </a>
-              </label>
+              <div className="label">
+                <span className="label-text-alt">
+                You already have an account?&nbsp;
+                <Link className="link link-hover " to="/sign-in">
+                   Sign in
+                </Link>
+                </span>
+              </div>
             </form>
           </div>
         </div>
