@@ -9,24 +9,24 @@ export default function SignUp() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
+  
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.id]: e.target.value,
     });
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await axios.post("/api/auth/signup", formData, {
+      const res = await axios.post(`/api/auth/signup`, formData, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
-      const data = response.data;
+      const data = await res.data; 
       console.log(data);
       if (data.success === false) {
         setLoading(false);
@@ -35,11 +35,13 @@ export default function SignUp() {
       }
       setLoading(false);
       setError(null);
-      navigate("/sign-in");
+      navigate('/sign-in');
     } catch (error) {
       setLoading(false);
       setError(error.message);
     }
+  
+    console.log(formData); // Use formData, not FormData
   };
 
   return (
@@ -69,7 +71,7 @@ export default function SignUp() {
                   placeholder="Name"
                   className="input input-bordered"
                   required
-                  value={formData.username}
+                  id="username"
                   onChange={handleChange}
                 />
               </div>
@@ -83,7 +85,7 @@ export default function SignUp() {
                   placeholder="Email"
                   className="input input-bordered"
                   required
-                  value={formData.email}
+                  id="email"
                   onChange={handleChange}
                 />
               </div>
@@ -97,13 +99,17 @@ export default function SignUp() {
                   placeholder="Password"
                   className="input input-bordered"
                   required
-                  value={formData.password}
+                  id="password"
                   onChange={handleChange}
                 />
               </div>
               <div className="form-control">
-                <button className="btn btn-neutral" type="submit">
-                  Sign up
+                <button
+                  disabled={loading}
+                  className="btn btn-neutral"
+                  type="submit"
+                >
+                  {loading ? "Loading..." : "Sign Up"}
                 </button>
               </div>
               <div className="form-control">
