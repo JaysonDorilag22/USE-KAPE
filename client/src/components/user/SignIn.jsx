@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signInStart, signInSuccess, signInFailure } from "../../redux/user/userSlice";
+import OAuth from "../OAuth";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
@@ -98,11 +99,7 @@ export default function SignIn() {
               >
                 {loading ? "Loading..." : "Sign In"}
               </button>
-              <div className="form-control">
-                <button className="btn btn-outline">
-                  <FcGoogle style={{ fontSize: "24px" }} /> Sign in with Google
-                </button>
-              </div>
+              <OAuth/>
               <div className="label text-center">
                 <span className="label-text-alt">
                   Don't you have an account?&nbsp;

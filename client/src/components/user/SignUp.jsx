@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import signup from "../../assets/images/signup.jpg";
 import { FcGoogle } from "react-icons/fc";
 import axios from "axios";
+import OAuth from "../OAuth";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
@@ -115,11 +116,7 @@ export default function SignUp() {
                   {loading ? "Loading..." : "Sign Up"}
                 </button>
               </div>
-              <div className="form-control">
-                <button className="btn btn-outline">
-                  <FcGoogle style={{ fontSize: "24px" }} /> Sign in with Google
-                </button>
-              </div>
+              <OAuth/>
               <div className="label">
                 <span className="label-text-alt">
                   Already have an account?{" "}
