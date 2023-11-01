@@ -1,10 +1,47 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import signin from "../../assets/images/signin.jpg";
 import { FcGoogle } from "react-icons/fc";
-import axios from 'axios';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { signInStart, signInSuccess, signInFailure } from "../../redux/user/userSlice";
 
 export default function SignIn() {
+  const [formData, setFormData] = useState({});
+  const { loading, error } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      dispatch(signInStart());
+      const res = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      console.log(data);
+      if (data.success === false) {
+        dispatch(signInFailure(data.message));
+        return;
+      }
+      dispatch(signInSuccess(data));
+      navigate("/");
+    } catch (error) {
+      dispatch(signInFailure(data.message));
+    }
+  };
   return (
     <div>
       <div
@@ -21,7 +58,7 @@ export default function SignIn() {
             </p>
           </div>
           <div className="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-            <form className="card-body">
+            <form onSubmit={handleSubmit} className="card-body">
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Email</span>
@@ -31,6 +68,8 @@ export default function SignIn() {
                   placeholder="email"
                   className="input input-bordered"
                   required
+                  id="email"
+                  onChange={handleChange}
                 />
               </div>
               <div className="form-control">
@@ -42,6 +81,8 @@ export default function SignIn() {
                   placeholder="password"
                   className="input input-bordered"
                   required
+                  id="password"
+                  onChange={handleChange}
                 />
                 <div className="label">
                   <Link className="link link-hover" to="/forgot-password">
@@ -51,9 +92,12 @@ export default function SignIn() {
                   </Link>
                 </div>
               </div>
-              <div className="form-control">
-                <button className="btn btn-neutral">Login</button>
-              </div>
+              <button
+                disabled={loading}
+                className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
+              >
+                {loading ? "Loading..." : "Sign In"}
+              </button>
               <div className="form-control">
                 <button className="btn btn-outline">
                   <FcGoogle style={{ fontSize: "24px" }} /> Sign in with Google
@@ -62,11 +106,12 @@ export default function SignIn() {
               <div className="label text-center">
                 <span className="label-text-alt">
                   Don't you have an account?&nbsp;
-                <Link className="link link-hover " to="/sign-up">
-                   Sign up
-                </Link>
+                  <Link className="link link-hover " to="/sign-up">
+                    Sign up
+                  </Link>
                 </span>
               </div>
+              {error && <div className="text-red-500">{error}</div>}
             </form>
           </div>
         </div>
