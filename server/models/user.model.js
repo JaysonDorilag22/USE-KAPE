@@ -4,20 +4,18 @@ const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      required: [true, "Please enter your name"],
-      maxLength: [30, "Your name cannot exceed 30 characters"],
-    },
-    email: {
-      type: String,
-      required: [true, "Please enter your email"],
+      required: true,
       unique: true,
-    },
-    password: {
+  },
+  email: {
       type: String,
-      required: [true, "Please enter your password"],
-      minlength: [6, "Your password must be longer than 6 characters"],
-      select: false,
-    },
+      required: true,
+      unique: true,
+  },
+  password: {
+      type: String,
+      required: true,
+  },
     avatar: {
       type: String,
       default:
