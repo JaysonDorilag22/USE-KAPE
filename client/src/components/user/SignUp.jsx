@@ -21,12 +21,14 @@ export default function SignUp() {
     e.preventDefault();
     try {
       setLoading(true);
-      const res = await axios.post(`/api/auth/signup`, formData, {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify(formData),
       });
-      const data = await res.data; 
+      const data = await res.json();
       console.log(data);
       if (data.success === false) {
         setLoading(false);
@@ -40,9 +42,10 @@ export default function SignUp() {
       setLoading(false);
       setError(error.message);
     }
-  
-    console.log(formData); // Use formData, not FormData
+
+    console.log(FormData);
   };
+
 
   return (
     <div>
