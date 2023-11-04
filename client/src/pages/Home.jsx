@@ -21,14 +21,6 @@ export default function Home() {
               "Welcome to UseKape, where your coffee journey begins. Explore,
               brew, and enjoy the perfect cup with us!"
             </p>
-            <Link to={"/sign-in"}>
-              <button
-                className="btn btn-outline"
-                style={{ color: "white", borderColor: "white" }}
-              >
-                Sign in
-              </button>
-            </Link>
           </div>
         </div>
       </div>
