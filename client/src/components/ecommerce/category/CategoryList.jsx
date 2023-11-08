@@ -1,4 +1,3 @@
-// CategoryList.jsx
 import React, { useEffect, useState } from 'react';
 
 export default function CategoryList() {
@@ -16,24 +15,27 @@ export default function CategoryList() {
   }, []);
 
   return (
-    <div className="flex flex-wrap">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {categories.map((category, index) => (
-        <div key={index} className="w-1/4 p-4">
-          <div className="card w-64 bg-white shadow-xl rounded-lg">
-            <figure>
-            <img
-                src={category.image.url} // Use category.image.url as the image URL
-                alt={category.name}
-                className="w-full h-48 object-cover rounded-t-lg"
-              />
-            </figure>
-            <div className="card-body p-4">
-              <h2 className="card-title text-lg font-semibold text-gray-800 mb-2">
-                {category.name}
-                {category.new && <div className="badge badge-primary ml-2">NEW</div>}
-              </h2>
-              <p className="text-gray-600">{category.description}</p>
+        <div key={index} className="bg-white shadow-xl rounded-lg overflow-hidden">
+          <div className="relative">
+            <div className="aspect-w-3 aspect-h-2">
+              {category.images.map((image, imgIndex) => (
+                <img
+                  key={imgIndex}
+                  src={image.url} // Use image.url as the image URL
+                  alt={`${category.name} - Image ${imgIndex}`}
+                  className="object-cover"
+                />
+              ))}
             </div>
+            {category.new && (
+              <div className="badge badge-primary absolute top-4 left-4">NEW</div>
+            )}
+          </div>
+          <div className="p-4">
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">{category.name}</h2>
+            <p className="text-gray-600">{category.description}</p>
           </div>
         </div>
       ))}

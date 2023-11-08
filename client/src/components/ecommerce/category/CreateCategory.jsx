@@ -4,7 +4,7 @@ export default function CreateCategory() {
   const [categoryData, setCategoryData] = useState({
     name: '',
     description: '',
-    image: null, // For file input
+    images: [], // An array to store multiple images
   });
 
   const handleInputChange = (e) => {
@@ -16,21 +16,33 @@ export default function CreateCategory() {
   };
 
   const handleImageUpload = (e) => {
-    const file = e.target.files[0];
+    const files = e.target.files;
     setCategoryData({
       ...categoryData,
-      image: file,
+      images: [...categoryData.images, ...files], // Append selected files to the existing array
+    });
+  };
+
+  const handleImageRemove = (index) => {
+    const updatedImages = [...categoryData.images];
+    updatedImages.splice(index, 1);
+    setCategoryData({
+      ...categoryData,
+      images: updatedImages,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Create a FormData object to send the form data to the server
     const formData = new FormData();
     formData.append('name', categoryData.name);
     formData.append('description', categoryData.description);
-    formData.append('image', categoryData.image);
+
+    // Append all selected images to the formData
+    for (const file of categoryData.images) {
+      formData.append('images', file);
+    }
 
     try {
       // Send the form data to the server using fetch or Axios
@@ -85,16 +97,27 @@ export default function CreateCategory() {
         </div>
 
         <div className="mt-4">
-          <label htmlFor="image" className="text-sm font-semibold">
-            Image (optional):
+          <label htmlFor="images" className="text-sm font-semibold">
+            Images (optional):
           </label>
           <input
             type="file"
             accept="image/*"
-            name="image"
+            name="images"
             onChange={handleImageUpload}
-            className="input input-primary"
+            multiple // Allow multiple file selection
+            className="file-input w-full max-w-xs" // Use the custom file input template
           />
+        </div>
+
+        <div className="mt-4">
+          <h3>Uploaded Images:</h3>
+          {categoryData.images.map((image, index) => (
+            <div key={index}>
+              <img src={URL.createObjectURL(image)} alt={`Uploaded Image ${index}`} />
+              <button onClick={() => handleImageRemove(index)}>Remove</button>
+            </div>
+          ))}
         </div>
 
         <button type="submit" className="mt-4 btn btn-primary">

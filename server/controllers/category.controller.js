@@ -5,7 +5,7 @@ import cloudinary from 'cloudinary';
 export const createCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
-    const image = req.file; // Use req.file to access the uploaded image
+    const images = req.files; // Use req.files to access the uploaded images (an array of files)
 
     if (!name || !description) {
       return res.status(400).json({ error: 'Name and description are required' });
@@ -14,18 +14,19 @@ export const createCategory = async (req, res) => {
     const newCategory = new Category({
       name,
       description,
-      image: {
-        public_id: '',
-        url: '',
-      },
+      images: [],
     });
 
-    if (image) {
-      const result = await cloudinary.v2.uploader.upload(image.path);
-
-      newCategory.image.public_id = result.public_id;
-      newCategory.image.url = result.secure_url;
+    if (images && images.length > 0) {
+      for (const image of images) {
+        const result = await cloudinary.v2.uploader.upload(image.path);
+        newCategory.images.push({
+          public_id: result.public_id,
+          url: result.secure_url,
+        });
+      }
     }
+
     const savedCategory = await newCategory.save();
 
     res.status(201).json(savedCategory);

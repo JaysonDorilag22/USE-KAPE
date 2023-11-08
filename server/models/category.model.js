@@ -1,4 +1,15 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+
+const imageSchema = new mongoose.Schema({
+  public_id: {
+    type: String,
+    required: true,
+  },
+  url: {
+    type: String,
+    required: true,
+  },
+});
 
 const categorySchema = new mongoose.Schema({
   name: {
@@ -9,16 +20,7 @@ const categorySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  image: {
-    public_id: {
-      type: String,
-      required: true
-  },
-  url: {
-      type: String,
-      required: true
-  }
-  },
+  images: [imageSchema], // An array of image objects
 });
 
 const Category = mongoose.model('Category', categorySchema);
