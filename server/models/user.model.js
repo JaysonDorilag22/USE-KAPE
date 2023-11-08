@@ -6,16 +6,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-  },
-  email: {
+    },
+    email: {
       type: String,
       required: true,
       unique: true,
-  },
-  password: {
+    },
+    password: {
       type: String,
       required: true,
-  },
+    },
     avatar: {
       type: String,
       default:
@@ -27,7 +27,8 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      default: "user",
+      enum: ["Admin", "User"], // Add other roles as needed
+      default: "Admin", // Set a default role
     },
   },
   { timestamps: true }

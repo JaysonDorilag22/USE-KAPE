@@ -8,6 +8,8 @@ import Profile from "./components/user/Profile";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import NewPassword from "./components/user/NewPassword";
+import CreateCategory from "./components/ecommerce/category/createCategory";
+import CategoryList from "./components/ecommerce/category/CategoryList";
 
 
 export default function App() {
@@ -21,6 +23,8 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<NewPassword />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/category-list" element={<CategoryList />} />
+        <Route path="/create-category" element={<CreateCategory />} />
       </Routes>
       <Footer />
     </Router>

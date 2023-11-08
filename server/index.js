@@ -3,6 +3,10 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRouter from './routes/user.route.js'; 
 import authRouter from './routes/auth.route.js';
+import categoryRouter from './routes/category.route.js'
+import cloudinary from 'cloudinary';
+// import ProductRouter from './routes/product.route.js';
+
 import cookieParser from "cookie-parser";
 dotenv.config();
 
@@ -25,8 +29,16 @@ app.listen(3000, () => {
     console.log('Server is running on port 3000!');
   });
 
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+})
+
 app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/category', categoryRouter);
+// app.use('/api/product', ProductRouter);
 
 
 app.use((err, req, res, next) => {
