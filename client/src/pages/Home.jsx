@@ -5,10 +5,13 @@ import slide2 from "../assets/images/slide2.jpg";
 import slide3 from "../assets/images/slide3.jpg";
 import hero from "../assets/images/hero.jpg";
 import home from "../assets/images/home.jpg";
+import CategoryList from "../components/ecommerce/category/CategoryList";
+
 
 export default function Home() {
   return (
     <div>
+    <CategoryList/>
       <div
         className="hero min-h-screen"
         style={{ backgroundImage: `url(${home})` }}
