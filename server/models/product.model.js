@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const productSchema = new mongoose.Schema({
   name: {
@@ -14,12 +14,23 @@ const productSchema = new mongoose.Schema({
     required: true,
   },
   category: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category', 
     required: true,
   },
-
+  images: [new mongoose.Schema({ // Define the image subdocument directly here
+    public_id: {
+      type: String,
+      required: true,
+    },
+    url: {
+      type: String,
+      required: true,
+    },
+  })],
+  // You can add more fields as needed for your ecommerce website, such as inventory, ratings, etc.
 });
 
 const Product = mongoose.model('Product', productSchema);
 
-module.exports = Product;
+export default Product;

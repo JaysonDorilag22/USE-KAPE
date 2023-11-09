@@ -20,7 +20,7 @@ const categorySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  images: [imageSchema], // An array of image objects
+  images: [imageSchema],
 });
 
 const Category = mongoose.model('Category', categorySchema);

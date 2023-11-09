@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import userRouter from './routes/user.route.js'; 
 import authRouter from './routes/auth.route.js';
 import categoryRouter from './routes/category.route.js'
+import productRouter from './routes/product.route.js'
 import cloudinary from 'cloudinary';
 // import ProductRouter from './routes/product.route.js';
 
@@ -38,6 +39,8 @@ app.listen(3000, () => {
 app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/category', categoryRouter);
+app.use('/api/product', productRouter);
+
 // app.use('/api/product', ProductRouter);
 
 
