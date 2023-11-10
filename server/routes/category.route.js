@@ -1,14 +1,14 @@
+// category.route.js
 import express from 'express';
+import multer from 'multer';
 import { createCategory, getCategories } from '../controllers/category.controller.js';
-import multer from 'multer'; // Import multer
 import { isAdmin } from '../utils/isAdmin.js';
+import { authenticateUser } from '../utils/authentication.middleware.js.js';
 
 const router = express.Router();
+const upload = multer({ dest: 'uploads/' });
 
-// Multer middleware configuration for handling file uploads
-const upload = multer({ dest: 'uploads/' }); // Define the destination folder
-
-router.post('/create', upload.array('images'), createCategory); // Use upload.array() to handle multiple images
+router.post('/create', authenticateUser, isAdmin, upload.array('images'), createCategory);
 router.get('/categories', getCategories);
 
 export default router;

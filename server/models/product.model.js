@@ -18,7 +18,7 @@ const productSchema = new mongoose.Schema({
     ref: 'Category', 
     required: true,
   },
-  images: [new mongoose.Schema({ // Define the image subdocument directly here
+  images: [new mongoose.Schema({ 
     public_id: {
       type: String,
       required: true,
@@ -28,7 +28,6 @@ const productSchema = new mongoose.Schema({
       required: true,
     },
   })],
-  // You can add more fields as needed for your ecommerce website, such as inventory, ratings, etc.
 });
 
 const Product = mongoose.model('Product', productSchema);

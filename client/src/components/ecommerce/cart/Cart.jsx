@@ -39,18 +39,36 @@ export default function Cart() {
 
                   <div className="flex flex-1 items-center justify-end gap-2">
                     <form>
-                      <label htmlFor="Line1Qty" className="sr-only">
+                      <label htmlFor="Line2Qty" className="sr-only">
                         {" "}
                         Quantity{" "}
                       </label>
 
-                      <input
-                        type="number"
-                        min="1"
-                        value="1"
-                        id="Line1Qty"
-                        className="h-8 w-12 rounded border-gray-200 bg-gray-50 p-0 text-center text-xs text-gray-600 [-moz-appearance:_textfield] focus:outline-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
-                      />
+                      <div class="flex items-center">
+                        <button
+                          type="button"
+                          onclick="document.getElementById('Line2Qty').stepDown()"
+                          className="h-8 px-2 border border-r-0 border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 focus:outline-none"
+                        >
+                          -
+                        </button>
+
+                        <input
+                          type="number"
+                          min="1"
+                          value="1"
+                          id="Line2Qty"
+                          className="h-8 w-12 rounded border-gray-200 bg-gray-50 p-0 text-center text-xs text-gray-600 [-moz-appearance:_textfield] focus:outline-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+                        />
+
+                        <button
+                          type="button"
+                          onclick="document.getElementById('Line2Qty').stepUp()"
+                          className="h-8 px-2 border border-l-0 border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 focus:outline-none"
+                        >
+                          +
+                        </button>
+                      </div>
                     </form>
 
                     <button className="text-gray-600 transition hover:text-red-600">
@@ -104,13 +122,31 @@ export default function Cart() {
                         Quantity{" "}
                       </label>
 
-                      <input
-                        type="number"
-                        min="1"
-                        value="1"
-                        id="Line2Qty"
-                        className="h-8 w-12 rounded border-gray-200 bg-gray-50 p-0 text-center text-xs text-gray-600 [-moz-appearance:_textfield] focus:outline-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
-                      />
+                      <div class="flex items-center">
+                        <button
+                          type="button"
+                          onclick="document.getElementById('Line2Qty').stepDown()"
+                          className="h-8 px-2 border border-r-0 border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 focus:outline-none"
+                        >
+                          -
+                        </button>
+
+                        <input
+                          type="number"
+                          min="1"
+                          value="1"
+                          id="Line2Qty"
+                          className="h-8 w-12 rounded border-gray-200 bg-gray-50 p-0 text-center text-xs text-gray-600 [-moz-appearance:_textfield] focus:outline-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+                        />
+
+                        <button
+                          type="button"
+                          onclick="document.getElementById('Line2Qty').stepUp()"
+                          className="h-8 px-2 border border-l-0 border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 focus:outline-none"
+                        >
+                          +
+                        </button>
+                      </div>
                     </form>
 
                     <button className="text-gray-600 transition hover:text-red-600">
@@ -159,18 +195,36 @@ export default function Cart() {
 
                   <div className="flex flex-1 items-center justify-end gap-2">
                     <form>
-                      <label htmlFor="Line3Qty" className="sr-only">
+                      <label htmlFor="Line2Qty" className="sr-only">
                         {" "}
                         Quantity{" "}
                       </label>
 
-                      <input
-                        type="number"
-                        min="1"
-                        value="1"
-                        id="Line3Qty"
-                        className="h-8 w-12 rounded border-gray-200 bg-gray-50 p-0 text-center text-xs text-gray-600 [-moz-appearance:_textfield] focus:outline-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
-                      />
+                      <div class="flex items-center">
+                        <button
+                          type="button"
+                          onclick="document.getElementById('Line2Qty').stepDown()"
+                          className="h-8 px-2 border border-r-0 border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 focus:outline-none"
+                        >
+                          -
+                        </button>
+
+                        <input
+                          type="number"
+                          min="1"
+                          value="1"
+                          id="Line2Qty"
+                          className="h-8 w-12 rounded border-gray-200 bg-gray-50 p-0 text-center text-xs text-gray-600 [-moz-appearance:_textfield] focus:outline-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+                        />
+
+                        <button
+                          type="button"
+                          onclick="document.getElementById('Line2Qty').stepUp()"
+                          className="h-8 px-2 border border-l-0 border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 focus:outline-none"
+                        >
+                          +
+                        </button>
+                      </div>
                     </form>
 
                     <button className="text-gray-600 transition hover:text-red-600">

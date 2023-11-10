@@ -11,7 +11,7 @@ import CategoryList from "../components/ecommerce/category/CategoryList";
 export default function Home() {
   return (
     <div>
-    <CategoryList/>
+    {/* <CategoryList/> */}
       <div
         className="hero min-h-screen"
         style={{ backgroundImage: `url(${home})` }}
