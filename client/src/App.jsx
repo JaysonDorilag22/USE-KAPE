@@ -6,6 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { useSelector } from "react-redux";
+import Header from './components/Header';
 import Home from "./pages/Home";
 import Signin from "./components/user/SignIn";
 import SignUp from "./components/user/SignUp";
@@ -28,6 +29,7 @@ const App = () => {
           path="/"
           element={
             <>
+              <Header/>
               <Home />
               <Footer />
             </>
@@ -37,6 +39,7 @@ const App = () => {
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<NewPassword />} />
+        {/* <Route path="/reset-password/:token" element={<PasswordReset />} /> */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/category-list" element={<CategoryList />} />
@@ -51,16 +54,16 @@ const App = () => {
             )
           }
         />
-        <Route
+        {/* <Route
           path="/dashboard"
           element={
             userRole === "User" || !userRole ? (
               <Navigate to="/" />
             ) : (
-              <AdminPanel />
+              // <AdminPanel />
             )
           }
-        />
+        /> */}
         {/* Redirect to Home for unknown routes */}
         <Route path="*" element={<PagenotFound />} />
       </Routes>

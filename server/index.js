@@ -41,8 +41,6 @@ app.use('/api/auth', authRouter);
 app.use('/api/category', categoryRouter);
 app.use('/api/product', productRouter);
 
-// app.use('/api/product', ProductRouter);
-
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

@@ -9,12 +9,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Function to generate a reset token
-function generateResetToken(length) {
+export function generateResetToken(length) {
   return crypto.randomBytes(length).toString('hex');
 }
 
 // Function to send a password reset email
-async function sendPasswordResetEmail(email, resetToken) {
+export async function sendPasswordResetEmail(email, resetToken) {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
@@ -31,6 +31,7 @@ async function sendPasswordResetEmail(email, resetToken) {
     html: `
       <p>You have requested a password reset. Click the link below to reset your password:</p>
       <a href="http://localhost:5173/reset-password?token=${resetToken}">Reset Password</a>
+      <a href="http://localhost:5173/reset-password?token=${resetToken}">Reset Password</a>
     `,
   };
 
@@ -43,7 +44,7 @@ async function sendPasswordResetEmail(email, resetToken) {
 }
 
 // Handle "forgot password" request
-export const forgotPassword = async (req, res, next) => {
+export async function forgotPassword(req, res, next) {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
@@ -52,7 +53,8 @@ export const forgotPassword = async (req, res, next) => {
       return next(errorHandler(404, 'User not found.'));
     }
 
-    const resetToken = generateResetToken(16); // Generate a 32-character token
+    // Generate a secure reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
     user.resetToken = resetToken;
     user.resetTokenExpiration = Date.now() + 3600000; // Token valid for 1 hour
     await user.save();
@@ -63,11 +65,13 @@ export const forgotPassword = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
+}
 
 // Handle "reset password" request
-export const resetPassword = async (req, res, next) => {
-  const { token, newPassword } = req.body;
+export async function resetPassword(req, res, next) {
+  const token = req.params.token; // Use req.params.token to get the token from the route parameters
+  const { newPassword } = req.body;
+
   try {
     const user = await User.findOne({
       resetToken: token,
@@ -84,11 +88,16 @@ export const resetPassword = async (req, res, next) => {
     user.resetTokenExpiration = undefined;
     await user.save();
 
-    res.status(200).json('Password reset successfully.');
+    // Return a success message or any relevant information
+    res.status(200).json({ message: 'Password reset successfully.' });
   } catch (error) {
     next(error);
   }
-};
+}
+
+
+
+
 
 // Handle user signup
 export const signup = async (req, res, next) => {

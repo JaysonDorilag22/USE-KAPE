@@ -3,10 +3,10 @@ import { forgotPassword, google, resetPassword, signOut, signin, signup } from '
 
 const router = express.Router();
 
-router.post("/signup", signup);
-router.post("/signin", signin);
+router.post('/signup', signup);
+router.post('/signin', signin);
 router.post('/google', google);
 router.get('/signout', signOut);
 router.post('/forgot-password', forgotPassword);
-router.post('/reset-password/:id/:token', resetPassword);
+router.put('/reset-password/:token', resetPassword);
 export default router;
