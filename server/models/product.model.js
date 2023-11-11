@@ -13,6 +13,11 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  quantity: {
+    type: Number, // Add a new field for quantity
+    default: 0,   // Set a default value, if needed
+    required: true,
+  },
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category', 

@@ -5,7 +5,7 @@ import cloudinary from 'cloudinary';
 export const createCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
-    const images = req.files; // Use req.files to access the uploaded images (an array of files)
+    const images = req.files; 
 
     if (!name || !description) {
       return res.status(400).json({ error: 'Name and description are required' });
