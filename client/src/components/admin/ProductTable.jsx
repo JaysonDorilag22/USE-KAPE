@@ -1,7 +1,13 @@
-import React from 'react'
+import React from 'react';
+import Sidebar from './Sidebar';
 
 export default function ProductTable() {
   return (
-    <div>ProductTable</div>
-  )
+    <div style={{ display: "flex" }}>
+      <Sidebar />
+      <div style={{ flex: 1 }}>
+        <div>ProductTable</div>
+      </div>
+    </div>
+  );
 }

@@ -31,7 +31,6 @@ export async function sendPasswordResetEmail(email, resetToken) {
     html: `
       <p>You have requested a password reset. Click the link below to reset your password:</p>
       <a href="http://localhost:5173/reset-password?token=${resetToken}">Reset Password</a>
-      <a href="http://localhost:5173/reset-password?token=${resetToken}">Reset Password</a>
     `,
   };
 
@@ -130,7 +129,7 @@ export const signin = async (req, res, next) => {
     res
       .cookie('access_token', token, { httpOnly: true })
       .status(200)
-      .json({ ...rest, role: validUser.role }); // Include the role in the response
+      .json({ ...rest, role: validUser.role }); 
   } catch (error) {
     next(error);
   }
