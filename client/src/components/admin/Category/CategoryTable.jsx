@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import Sidebar from "./Sidebar";
+import Sidebar from "../../Sidebar";
 import { BsPencil, BsTrash } from "react-icons/bs";
 import { Link } from "react-router-dom";
-
+import CreateCategory from "./CreateCategory"
 export default function CategoryTable() {
   const [categories, setCategories] = useState([]);
-  const [isCreateCategoryModalOpen, setCreateCategoryModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5); // You can adjust the number of items per page
 
@@ -40,10 +39,7 @@ export default function CategoryTable() {
     <div style={{ display: "flex" }}>
       <Sidebar />
       <div className="overflow-x-auto" style={{ flex: 1 }}>
-        <button className="inline-block rounded border border-current px-8 py-3 text-sm font-medium text-indigo-600 transition p-10 hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:text-indigo-500">
-          <Link to="/create-category">Add Category</Link>
-        </button>
-
+        <CreateCategory/>
         <table className="table table-xs">
           <thead>
             <tr>

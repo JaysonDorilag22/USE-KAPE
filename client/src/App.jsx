@@ -14,17 +14,17 @@ import ForgotPassword from "./components/user/ForgotPassword";
 import Profile from "./components/user/Profile";
 import Footer from "./components/Footer";
 import NewPassword from "./components/user/NewPassword";
-import CategoryList from "./components/ecommerce/category/CategoryCard";
-import Cart from "./components/ecommerce/cart/Cart";
+import CategoryList from "./components/ecommerce/Category/CategoryCard";
+import Cart from "./components/ecommerce/Cart/Cart";
 import PagenotFound from "./pages/PagenotFound";
 
 // Admin pages
 import AdminPanel from "./components/admin/AdminPanel";
-import CategoryTable from "./components/admin/CategoryTable";
-import ProductTable from "./components/admin/ProductTable";
+import CategoryTable from "./components/admin/Category/CategoryTable";
+import ProductTable from "./components/admin/Product/ProductTable";
 import OrderTable from "./components/admin/OrderTable";
-import PostTable from "./components/admin/PostTable";
-import CreateCategory from "./components/ecommerce/category/CreateCategory";
+import PostTable from "./components/admin/Post/PostTable";
+
 
 const AdminRoutesWrapper = ({ element }) => {
   const userRole = useSelector((state) => state.user.currentUser?.role);
@@ -72,10 +72,6 @@ const App = () => {
           <Route
             path="/order-table"
             element={<AdminRoutesWrapper element={<OrderTable />} />}
-          />
-          <Route
-            path="/create-category"
-            element={<AdminRoutesWrapper element={<CreateCategory />} />}
           />
 
           {/* Redirect to Home for unknown routes */}

@@ -16,7 +16,7 @@ export const createProduct = async (req, res) => {
       description,
       price,
       category,
-      quantity: quantity || 0, // Set quantity to 0 if not provided
+      quantity: quantity || 0, 
       images: [],
     });
 
