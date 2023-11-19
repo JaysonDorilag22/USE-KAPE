@@ -8,5 +8,6 @@ router.post('/signin', signin);
 router.post('/google', google);
 router.get('/signout', signOut);
 router.post('/forgot-password', forgotPassword);
-router.put('/reset-password/:token', resetPassword);
+router.put('/password/reset/:id/:token', resetPassword);
+
 export default router;

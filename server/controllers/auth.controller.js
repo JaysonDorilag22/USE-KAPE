@@ -10,93 +10,77 @@ dotenv.config();
 
 // Function to generate a reset token
 export function generateResetToken(length) {
-  return crypto.randomBytes(length).toString('hex');
+  return crypto.randomBytes(length).toString("hex");
 }
 
-// Function to send a password reset email
-export async function sendPasswordResetEmail(email, resetToken) {
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    auth: {
-      user: process.env.SMTP_EMAIL,
-      pass: process.env.SMTP_PASSWORD,
-    },
-  });
-
-  const message = {
-    from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
-    to: email,
-    subject: 'Password Reset',
-    html: `
-      <p>You have requested a password reset. Click the link below to reset your password:</p>
-      <a href="http://localhost:5173/reset-password?token=${resetToken}">Reset Password</a>
-    `,
-  };
-
-  try {
-    await transporter.sendMail(message);
-  } catch (error) {
-    console.error('Email error:', error);
-    throw new Error('Failed to send password reset email.');
-  }
-}
-
-// Handle "forgot password" request
 export async function forgotPassword(req, res, next) {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
 
     if (!user) {
-      return next(errorHandler(404, 'User not found.'));
+      return res.status(404).json({ status: "User not found" });
     }
 
-    // Generate a secure reset token
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    user.resetToken = resetToken;
-    user.resetTokenExpiration = Date.now() + 3600000; // Token valid for 1 hour
-    await user.save();
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
 
-    await sendPasswordResetEmail(email, resetToken);
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      auth: {
+        user: process.env.SMTP_EMAIL,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
 
-    res.status(200).json('Password reset email sent.');
+    const mailOptions = {
+      from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
+      to: email,
+      subject: "Password Reset",
+      html: `
+        <p>Hello,</p>
+        <p>You have requested a password reset. Click the link below to reset your password:</p>
+        <a href="http://localhost:5173/reset-password?token=${user.id}/${token}">Reset Password</a>
+        <p>If you did not request this reset, please ignore this email.</p>
+        <p>Thank you!</p>
+      `,
+    };
+    
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error(error);
+        return res.status(500).json({ status: "Error sending email" });
+      } else {
+        return res.json({ status: "Success" });
+      }
+    });
   } catch (error) {
-    next(error);
+    console.error("Error in forgotPassword:", error);
+    return res.status(500).json({ status: "Internal Server Error", error: error.message });
   }
 }
 
 // Handle "reset password" request
-export async function resetPassword(req, res, next) {
-  const token = req.params.token; // Use req.params.token to get the token from the route parameters
-  const { newPassword } = req.body;
+export async function resetPassword(req, res, next){
+  const {id, token} = req.params
+  const {password} = req.body
 
-  try {
-    const user = await User.findOne({
-      resetToken: token,
-      resetTokenExpiration: { $gt: Date.now() },
-    });
-
-    if (!user) {
-      return next(errorHandler(400, 'Invalid or expired token.'));
+  jwt.verify(token, process.env.JWT_SECRET, (err, decode) =>{
+    if(err){
+      return res.json({Status: "error token"})
+    } else {
+      bcryptjs.hash(password, 10)
+            .then(hash => {
+                User.findByIdAndUpdate({_id: id}, {password: hash})
+                .then(u => res.send({Status: "Success"}))
+                .catch(err => res.send({Status: err}))
+            })
+            .catch(err => res.send({Status: err}))
     }
-
-    const hashedPassword = bcryptjs.hashSync(newPassword, 10);
-    user.password = hashedPassword;
-    user.resetToken = undefined;
-    user.resetTokenExpiration = undefined;
-    await user.save();
-
-    // Return a success message or any relevant information
-    res.status(200).json({ message: 'Password reset successfully.' });
-  } catch (error) {
-    next(error);
-  }
+  } )
 }
-
-
-
-
 
 // Handle user signup
 export const signup = async (req, res, next) => {

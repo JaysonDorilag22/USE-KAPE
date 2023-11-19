@@ -24,6 +24,7 @@ export default function ForgotPassword() {
 
       if (response.ok) {
         setMessage('Password reset email sent.');
+        navigate('/');
       } else {
         const data = await response.json();
         setError(data.message);
