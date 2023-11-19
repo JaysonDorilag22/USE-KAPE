@@ -10,8 +10,7 @@ const upload = multer({ dest: 'uploads/' });
 
 router.post('/create', authenticateUser, isAdmin, upload.array('images'), createCategory);
 router.get('/categories', getCategories);
-router.post('/update/:id',authenticateUser, isAdmin, editCategory);
-router.delete('/delete/:id',authenticateUser, isAdmin, deleteCategory);
-
+router.put('/update/:id',authenticateUser, isAdmin, editCategory);
+router.delete('/delete/:id', authenticateUser, isAdmin, deleteCategory);
 
 export default router;

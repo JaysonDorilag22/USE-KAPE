@@ -2,58 +2,168 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../../Sidebar";
 import { BsPencil, BsTrash } from "react-icons/bs";
 import { Link } from "react-router-dom";
-import CreateCategory from "./CreateCategory"
+import CreateCategory from "./CreateCategory";
+import axios from "axios";
+import Pagination from "../../pagination";
+
 export default function CategoryTable() {
   const [categories, setCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5); // You can adjust the number of items per page
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [itemsPerPageOptions, setItemsPerPageOptions] = useState([5, 10, 15]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/category/categories")
-      .then((response) => response.json())
-      .then((data) => {
-        setCategories(data);
+    axios
+      .get("/api/category/categories")
+      .then((response) => {
+        setCategories(response.data);
       })
       .catch((error) => {
         console.error("Error fetching categories:", error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
-  const handleEdit = (categoryId) => {
-    console.log("Edit category with ID:", categoryId);
+  const handleDelete = () => {
+    if (
+      window.confirm("Are you sure you want to delete the selected categories?")
+    ) {
+      selectedCategories.forEach((categoryId) => {
+        axios
+          .delete(`/api/category/delete/${categoryId}`)
+          .then((response) => {
+            setCategories((prevCategories) =>
+              prevCategories.filter((category) => category._id !== categoryId)
+            );
+          })
+          .catch((error) => {
+            console.error(
+              `Error deleting category with ID ${categoryId}:`,
+              error
+            );
+          });
+      });
+
+      setSelectedCategories([]);
+    }
   };
 
-  const handleDelete = (categoryId) => {
-    console.log("Delete category with ID:", categoryId);
+  const handleCheckboxChange = (categoryId) => {
+    const isSelected = selectedCategories.includes(categoryId);
+    if (isSelected) {
+      setSelectedCategories((prevSelected) =>
+        prevSelected.filter((id) => id !== categoryId)
+      );
+    } else {
+      setSelectedCategories((prevSelected) => [...prevSelected, categoryId]);
+    }
   };
 
-  // Calculate total pages
   const totalPages = Math.ceil(categories.length / itemsPerPage);
-
-  // Paginate the data
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = categories.slice(indexOfFirstItem, indexOfLastItem);
+  let currentItems = categories.slice(indexOfFirstItem, indexOfLastItem);
+
+
+//Searching
+  if (searchQuery) {
+    currentItems = currentItems.filter(
+      (category) =>
+        category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        category.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
+
+//Pagination
+  const onPageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const handleItemsPerPageChange = (value) => {
+    setItemsPerPage(value);
+    setCurrentPage(1);
+  };
 
   return (
     <div style={{ display: "flex" }}>
       <Sidebar />
       <div className="overflow-x-auto" style={{ flex: 1 }}>
-        <CreateCategory/>
-        <table className="table table-xs">
+        <CreateCategory />
+
+        <div className="flex justify-between items-center">
+          <div>
+            <label htmlFor="itemsPerPage" className="ml-5">
+              Show:{" "}
+            </label>
+            <select
+              id="itemsPerPage"
+              value={itemsPerPage}
+              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+              className="m-4"
+            >
+              {itemsPerPageOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            <label htmlFor="searchQuery" className="text-sm font-semibold m-4">
+              Search:
+            </label>
+            <input
+              type="text"
+              id="searchQuery"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="mt-1 p-2 border border-gray-300 rounded-md max-w-md"
+            />
+          </div>
+          <div className="flex items-center">
+            <button
+              className="px-4 p-2 bg-red-700 text-white rounded-md m-3"
+              onClick={handleDelete}
+              disabled={selectedCategories.length === 0}
+            >
+              <BsTrash />
+            </button>
+          </div>
+        </div>
+
+        <table className="table table-xl">
           <thead>
             <tr>
-              <th></th>
               <th>Name</th>
               <th>Description</th>
               <th>Images</th>
               <th>Actions</th>
+              <th>
+                <input
+                  type="checkbox"
+                  onChange={() =>
+                    setSelectedCategories(
+                      selectedCategories.length === currentItems.length
+                        ? []
+                        : currentItems.map((category) => category._id)
+                    )
+                  }
+                  checked={
+                    selectedCategories.length === currentItems.length &&
+                    currentItems.length > 0
+                  }
+                />
+              </th>
             </tr>
           </thead>
           <tbody>
             {currentItems.map((category, index) => (
               <tr key={category._id}>
-                <th>{index + 1}</th>
                 <td>{category.name}</td>
                 <td>{category.description}</td>
                 <td>
@@ -66,69 +176,35 @@ export default function CategoryTable() {
                         width: "50px",
                         height: "50px",
                         marginRight: "5px",
-                        display: "flex - 1"
+                        display: "flex - 1",
                       }}
                     />
                   ))}
                 </td>
                 <td>
-                  <button
-                    className="text-blue-500 hover:text-blue-700 mr-2"
-                    onClick={() => handleEdit(category._id)}
-                  >
-                    <BsPencil />
-                  </button>
-                  <button
-                    className="text-red-500 hover:text-red-700"
-                    onClick={() => handleDelete(category._id)}
-                  >
-                    <BsTrash />
-                  </button>
+                  <Link to={`/update-category/${category._id}`}>
+                    <button className="text-blue-500 hover:text-blue-700 mr-2">
+                      <BsPencil />
+                    </button>
+                  </Link>
+                </td>
+                <td>
+                  <input
+                    type="checkbox"
+                    onChange={() => handleCheckboxChange(category._id)}
+                    checked={selectedCategories.includes(category._id)}
+                  />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        {/* Pagination */}
-        <ol className="flex justify-center gap-1 text-xs font-medium">
-          <li>
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(currentPage - 1)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
-            >
-              <span className="sr-only">Prev Page</span>
-              {/* ... */}
-            </button>
-          </li>
-
-          {Array.from({ length: totalPages }, (_, index) => (
-            <li key={index}>
-              <button
-                onClick={() => setCurrentPage(index + 1)}
-                className={`block h-8 w-8 rounded border ${
-                  currentPage === index + 1
-                    ? "border-blue-600 bg-blue-600 text-white"
-                    : "border-gray-100 bg-white text-center leading-8 text-gray-900"
-                }`}
-              >
-                {index + 1}
-              </button>
-            </li>
-          ))}
-
-          <li>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(currentPage + 1)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
-            >
-              <span className="sr-only">Next Page</span>
-              {/* ... */}
-            </button>
-          </li>
-        </ol>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
       </div>
     </div>
   );

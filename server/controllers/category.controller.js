@@ -83,7 +83,7 @@ export const editCategory = async (req, res) => {
   }
 };
 
-export const deleteCategory = async (req, res) => {
+export const deleteCategory = async (req, res, next) => {
   try {
     const categoryId = req.params.id;
     const category = await Category.findById(categoryId);
@@ -92,11 +92,28 @@ export const deleteCategory = async (req, res) => {
       return res.status(404).json({ error: 'Category not found' });
     }
 
-    await Category.deleteOne({ _id: categoryId }); // Use deleteOne method
+    // Retrieve the list of image public_ids associated with the category
+    const imagePublicIds = category.images.map((image) => image.public_id);
 
-    res.status(204).send(); // 204 No Content status for successful deletion
+    // Delete all images associated with the category from Cloudinary
+    if (imagePublicIds.length > 0) {
+      await Promise.all(
+        imagePublicIds.map(async (publicId) => {
+          await cloudinary.uploader.destroy(publicId);
+        })
+      );
+    }
+
+    // Delete the category from the database
+    await Category.findByIdAndDelete(categoryId);
+
+    res.status(201).json({
+      success: true,
+      message: 'Category deleted',
+    });
   } catch (error) {
-    console.error('Error deleting category:', error);
-    res.status(500).json({ error: 'An error occurred while deleting the category' });
+    console.log(error);
+    next(error);
   }
 };
+
