@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
 import {
   getDownloadURL,
   getStorage,
@@ -8,10 +7,13 @@ import {
 } from "firebase/storage";
 import { app } from "../../../firebase";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
-export default function CreateProduct() {
+export default function UpdateProduct() {
+  const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
+  const params = useParams();
   const [files, setFiles] = useState([]);
   const [formData, setFormData] = useState({
     imageUrls: [],
@@ -21,11 +23,25 @@ export default function CreateProduct() {
     quantity: "",
     category: "",
   });
-  const [categories, setCategories] = useState([]);
   const [imageUploadError, setImageUploadError] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const productId = params.productId;
+      const res = await fetch(`/api/product/get/${productId}`);
+      const data = await res.json();
+      if (data.success === false) {
+        console.log(data.message);
+        return;
+      }
+      setFormData(data);
+    };
+
+    fetchProduct();
+  }, []);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -51,7 +67,6 @@ export default function CreateProduct() {
       for (let i = 0; i < files.length; i++) {
         promises.push(storeImage(files[i]));
       }
-
       Promise.all(promises)
         .then((urls) => {
           setFormData({
@@ -66,7 +81,7 @@ export default function CreateProduct() {
           setUploading(false);
         });
     } else {
-      setImageUploadError("You can only upload 6 images per product");
+      setImageUploadError("You can only upload 6 images per Product");
       setUploading(false);
     }
   };
@@ -117,7 +132,7 @@ export default function CreateProduct() {
         return setError("You must upload at least one image");
       setLoading(true);
       setError(false);
-      const res = await fetch("/api/product/create", {
+      const res = await fetch(`/api/product/update/${params.productId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -131,7 +146,7 @@ export default function CreateProduct() {
       if (data.success === false) {
         setError(data.message);
       }
-      window.location.reload();
+      navigate(`/product-table`);
     } catch (error) {
       setError(error.message);
       setLoading(false);
@@ -141,7 +156,7 @@ export default function CreateProduct() {
   return (
     <main className="p-3 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">
-        Create a Product
+        Update a Product
       </h1>
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
         <div className="flex flex-col gap-4 flex-1">
@@ -192,7 +207,9 @@ export default function CreateProduct() {
             onChange={handleChange}
             value={formData.category}
           >
-            <option value="" disabled>Select a category</option>
+            <option value="" disabled>
+              Select a category
+            </option>
             {categories.map((category) => (
               <option key={category._id} value={category._id}>
                 {category.name}
@@ -204,7 +221,7 @@ export default function CreateProduct() {
           <p className="font-semibold">
             Images:
             <span className="font-normal text-gray-600 ml-2">
-            Limit the image size to a maximum of 2MB.
+              Limit the image size to a maximum of 2MB.
             </span>
           </p>
           <div className="flex gap-4">
@@ -253,7 +270,7 @@ export default function CreateProduct() {
             disabled={loading || uploading}
             className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
           >
-            {loading ? "Creating..." : "Create product"}
+            {loading ? "Updating..." : "Update product"}
           </button>
           {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>

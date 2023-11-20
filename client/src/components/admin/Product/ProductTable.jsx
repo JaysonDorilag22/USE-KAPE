@@ -1,141 +1,211 @@
-import React, { useEffect, useState } from 'react';
-import Sidebar from '../../Sidebar';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { BsPencil, BsTrash } from 'react-icons/bs'; // Import your icon components
-import CreateProduct from './CreateProduct';
+import React, { useEffect, useState } from "react";
+import Sidebar from "../../Sidebar";
+import { BsPencil, BsTrash } from "react-icons/bs";
+import { Link } from "react-router-dom";
+import CreateProduct from "./CreateProduct";
+import axios from "axios";
+import Pagination from "../../pagination";
+
 export default function ProductTable() {
-  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5); // Set the number of items per page
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [itemsPerPageOptions, setItemsPerPageOptions] = useState([5, 10, 15]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch products or use your API call to get the products data
-    const fetchData = async () => {
+    const fetchProducts = async () => {
       try {
-        const response = await axios.get('/api/product/products'); // Update the API endpoint
+        const response = await axios.get("/api/product/products");
         setProducts(response.data);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchData();
+    fetchProducts();
   }, []);
 
-  // Pagination calculations
+  const handleDelete = async () => {
+    if (
+      window.confirm("Are you sure you want to delete the selected products?")
+    ) {
+      try {
+        await Promise.all(
+          selectedProducts.map(async (productId) => {
+            await axios.delete(`/api/product/delete/${productId}`);
+          })
+        );
+
+        setProducts((prevProducts) =>
+        prevProducts.filter(
+            (product) => !selectedProducts.includes(product._id)
+          )
+        );
+
+        setSelectedProducts([]);
+      } catch (error) {
+        console.error("Error deleting products:", error);
+      }
+    }
+  };
+
+  const handleCheckboxChange = (productId) => {
+    const isSelected = selectedProducts.includes(productId);
+    if (isSelected) {
+      setSelectedProducts((prevSelected) =>
+        prevSelected.filter((id) => id !== productId)
+      );
+    } else {
+      setSelectedProducts((prevSelected) => [...prevSelected, productId]);
+    }
+  };
+
+  const onPageChange = (newPage) => {
+    const totalPages = Math.ceil(products.length / itemsPerPage);
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const handleItemsPerPageChange = (value) => {
+    setItemsPerPage(value);
+    setCurrentPage(1);
+  };
+
+  const totalPages = Math.ceil(products.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(products.length / itemsPerPage);
+  let currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
 
-  const handleEdit = (productId) => {
-    // Implement your edit functionality
-    console.log(`Edit product with ID: ${productId}`);
-  };
+  if (searchQuery) {
+    currentItems = currentItems.filter(
+      (products) =>
+      products.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      products.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
 
-  const handleDelete = (productId) => {
-    // Implement your delete functionality
-    console.log(`Delete product with ID: ${productId}`);
-  };
 
   return (
-    <div style={{ display: 'flex' }}>
+    <div style={{ display: "flex" }}>
       <Sidebar />
       <div className="overflow-x-auto" style={{ flex: 1 }}>
-        {/* ... Your existing code ... */}
-      <CreateProduct/>
-        {/* Product Table */}
-        <table className="table table-xs">
+        <CreateProduct />
+
+        <div className="flex justify-between items-center">
+          <div>
+            <label htmlFor="itemsPerPage" className="ml-5">
+              Show:{" "}
+            </label>
+            <select
+              id="itemsPerPage"
+              value={itemsPerPage}
+              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+              className="m-4"
+            >
+              {itemsPerPageOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            <label htmlFor="searchQuery" className="text-sm font-semibold m-4">
+              Search:
+            </label>
+            <input
+              type="text"
+              id="searchQuery"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="mt-1 p-2 border border-gray-300 rounded-md max-w-md"
+            />
+          </div>
+          <div className="flex items-center">
+            <button
+              className="px-4 p-2 bg-red-700 text-white rounded-md m-3"
+              onClick={handleDelete}
+              disabled={selectedProducts.length === 0}
+            >
+              <BsTrash />
+            </button>
+          </div>
+        </div>
+
+        <table className="table table-xl">
           <thead>
             <tr>
-              <th></th>
               <th>Name</th>
               <th>Description</th>
+              <th>Price</th>
+              <th>Quantity</th>
               <th>Images</th>
               <th>Actions</th>
+              <th>
+                <input
+                  type="checkbox"
+                  onChange={() =>
+                    setSelectedProducts(
+                      selectedProducts.length === currentItems.length
+                        ? []
+                        : currentItems.map((product) => product._id)
+                    )
+                  }
+                  checked={
+                    selectedProducts.length === currentItems.length &&
+                    currentItems.length > 0
+                  }
+                />
+              </th>
             </tr>
           </thead>
           <tbody>
             {currentItems.map((product, index) => (
               <tr key={product._id}>
-                <th>{index + 1}</th>
                 <td>{product.name}</td>
                 <td>{product.description}</td>
+                <td>{product.price}</td>
+                <td>{product.quantity}</td>
                 <td>
-                  {product.images.map((image, imageIndex) => (
-                    <img
-                      key={imageIndex}
-                      src={image.url}
-                      alt={`Image ${imageIndex + 1}`}
-                      style={{
-                        width: '50px',
-                        height: '50px',
-                        marginRight: '5px',
-                        display: 'flex - 1',
-                      }}
-                    />
-                  ))}
+                  <div className="flex">
+                    {product.imageUrls.map((url) => (
+                      <img
+                        key={url}
+                        src={url}
+                        alt={`product-${product._id}`}
+                        className="h-20 w-20 object-cover m-1"
+                      />
+                    ))}
+                  </div>
                 </td>
                 <td>
-                  <button
-                    className="text-blue-500 hover:text-blue-700 mr-2"
-                    onClick={() => handleEdit(product._id)}
-                  >
-                    <BsPencil />
-                  </button>
-                  <button
-                    className="text-red-500 hover:text-red-700"
-                    onClick={() => handleDelete(product._id)}
-                  >
-                    <BsTrash />
-                  </button>
+                  <Link to={`/update-product/${product._id}`}>
+                    <button className="text-blue-500 hover:text-blue-700 mr-2">
+                      <BsPencil />
+                    </button>
+                  </Link>
+                </td>
+                <td>
+                  <input
+                    type="checkbox"
+                    onChange={() => handleCheckboxChange(product._id)}
+                    checked={selectedProducts.includes(product._id)}
+                  />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        {/* ... Your existing pagination code ... */}
-        <ol className="flex justify-center gap-1 text-xs font-medium">
-          <li>
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(currentPage - 1)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
-            >
-              <span className="sr-only">Prev Page</span>
-              {/* ... */}
-            </button>
-          </li>
-
-          {Array.from({ length: totalPages }, (_, index) => (
-            <li key={index}>
-              <button
-                onClick={() => setCurrentPage(index + 1)}
-                className={`block h-8 w-8 rounded border ${
-                  currentPage === index + 1
-                    ? "border-blue-600 bg-blue-600 text-white"
-                    : "border-gray-100 bg-white text-center leading-8 text-gray-900"
-                }`}
-              >
-                {index + 1}
-              </button>
-            </li>
-          ))}
-
-          <li>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(currentPage + 1)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
-            >
-              <span className="sr-only">Next Page</span>
-              {/* ... */}
-            </button>
-          </li>
-        </ol>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
       </div>
     </div>
   );

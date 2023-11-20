@@ -23,6 +23,7 @@ import AdminPanel from "./components/admin/AdminPanel";
 import CategoryTable from "./components/admin/Category/CategoryTable";
 import UpdateCategory from "./components/admin/Category/UpdateCategory";
 import ProductTable from "./components/admin/Product/ProductTable";
+import UpdateProduct from "./components/admin/Product/UpdateProduct";
 import OrderTable from "./components/admin/OrderTable";
 import PostTable from "./components/admin/Post/PostTable";
 
@@ -71,6 +72,11 @@ const App = () => {
             path="/product-table"
             element={<AdminRoutesWrapper element={<ProductTable />} />}
           />
+          <Route
+            path='/update-product/:productId'
+            element={<UpdateProduct />}
+          />
+
           <Route
             path="/post-table"
             element={<AdminRoutesWrapper element={<PostTable />} />}

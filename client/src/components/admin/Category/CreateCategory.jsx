@@ -150,7 +150,7 @@ export default function CreateCategory() {
           <p className='font-semibold'>
             Images:
             <span className='font-normal text-gray-600 ml-2'>
-              The first image will be the cover (max 6)
+            Limit the image size to a maximum of 2MB.
             </span>
           </p>
           <div className='flex gap-4'>

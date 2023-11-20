@@ -24,7 +24,7 @@ export default function UpdateCategory() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchListing = async () => {
+    const fetchCategories = async () => {
       const categoryId = params.categoryId;
       const res = await fetch(`/api/category/get/${categoryId}`);
       const data = await res.json();
@@ -35,7 +35,7 @@ export default function UpdateCategory() {
       setFormData(data);
     };
 
-    fetchListing();
+    fetchCategories();
   }, []);
 
   const handleImageSubmit = (e) => {
@@ -136,7 +136,7 @@ export default function UpdateCategory() {
   return (
     <main className='p-3 max-w-4xl mx-auto'>
     <h1 className='text-3xl font-semibold text-center my-7'>
-      Create a Category
+    Update a Category
     </h1>
     <form onSubmit={handleSubmit} className='flex flex-col sm:flex-row gap-4'>
       <div className='flex flex-col gap-4 flex-1'>
@@ -213,7 +213,7 @@ export default function UpdateCategory() {
           disabled={loading || uploading}
           className='p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
         >
-          {loading ? 'Creating...' : 'Create category'}
+          {loading ? 'Updating...' : 'Update category'}
         </button>
         {error && <p className='text-red-700 text-sm'>{error}</p>}
       </div>
