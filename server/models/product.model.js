@@ -14,8 +14,8 @@ const productSchema = new mongoose.Schema({
     required: true,
   },
   quantity: {
-    type: Number, // Add a new field for quantity
-    default: 0,   // Set a default value, if needed
+    type: Number, 
+    default: 0,   
     required: true,
   },
   category: {
@@ -23,16 +23,10 @@ const productSchema = new mongoose.Schema({
     ref: 'Category', 
     required: true,
   },
-  images: [new mongoose.Schema({ 
-    public_id: {
-      type: String,
-      required: true,
-    },
-    url: {
-      type: String,
-      required: true,
-    },
-  })],
+  imageUrls: {
+    type: Array,
+    required: true,
+  },
 });
 
 const Product = mongoose.model('Product', productSchema);

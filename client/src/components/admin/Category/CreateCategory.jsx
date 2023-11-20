@@ -1,177 +1,208 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
+import { useState } from 'react';
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from 'firebase/storage';
+import { app } from '../../../firebase';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 export default function CreateCategory() {
   const navigate = useNavigate();
-
-  const [categoryData, setCategoryData] = useState({
-    name: "",
-    description: "",
-    images: [],
+  const [files, setFiles] = useState([]);
+  const [formData, setFormData] = useState({
+    imageUrls: [],
+    name: '',
+    description: '',
   });
+  const [imageUploadError, setImageUploadError] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setCategoryData({
-      ...categoryData,
-      [name]: value,
+  const handleImageSubmit = (e) => {
+    if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
+      setUploading(true);
+      setImageUploadError(false);
+      const promises = [];
+
+      for (let i = 0; i < files.length; i++) {
+        promises.push(storeImage(files[i]));
+      }
+
+      Promise.all(promises)
+        .then((urls) => {
+          setFormData({
+            ...formData,
+            imageUrls: formData.imageUrls.concat(urls),
+          });
+          setImageUploadError(false);
+          setUploading(false);
+        })
+        .catch((err) => {
+          setImageUploadError('Image upload failed (2 mb max per image)');
+          setUploading(false);
+        });
+    } else {
+      setImageUploadError('You can only upload 6 images per category');
+      setUploading(false);
+    }
+  };
+
+  const storeImage = async (file) => {
+    return new Promise((resolve, reject) => {
+      const storage = getStorage(app);
+      const fileName = new Date().getTime() + file.name;
+      const storageRef = ref(storage, fileName);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
+        },
+        (error) => {
+          reject(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            resolve(downloadURL);
+          });
+        }
+      );
     });
   };
 
-  const handleImageUpload = (e) => {
-    const files = e.target.files;
-    setCategoryData({
-      ...categoryData,
-      images: [...categoryData.images, ...files],
+  const handleRemoveImage = (index) => {
+    setFormData({
+      ...formData,
+      imageUrls: formData.imageUrls.filter((_, i) => i !== index),
     });
   };
 
-  const handleImageRemove = (index) => {
-    const updatedImages = [...categoryData.images];
-    updatedImages.splice(index, 1);
-    setCategoryData({
-      ...categoryData,
-      images: updatedImages,
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    const formData = new FormData();
-    formData.append("name", categoryData.name);
-    formData.append("description", categoryData.description);
-  
-    for (const file of categoryData.images) {
-      formData.append("images", file);
-    }
-  
     try {
-      const response = await fetch("/api/category/create", {
-        method: "POST",
-        body: formData,
+      if (formData.imageUrls.length < 1)
+        return setError('You must upload at least one image');
+      setLoading(true);
+      setError(false);
+      const res = await fetch('/api/category/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+        }),
       });
-  
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-  
-        // Clear the input values after successful creation
-        setCategoryData({
-          name: "",
-          description: "",
-          images: [],
-        });
-  
-        // Close the modal
-        closeModal();
-  
-        // Navigate to the category table
-        window.location.reload();
-      } else {
-        console.error("Error creating category");
+      const data = await res.json();
+      setLoading(false);
+      if (data.success === false) {
+        setError(data.message);
       }
+      window.location.reload();
     } catch (error) {
-      console.error("Error creating category:", error);
+      setError(error.message);
+      setLoading(false);
     }
-  };
-  
-
-  const openModal = () => {
-    document.getElementById("my_modal_3").showModal();
-  };
-
-  const closeModal = () => {
-    document.getElementById("my_modal_3").close();
   };
 
   return (
-    <div style={{ display: "flex" }}>
-      {/* <Sidebar /> */}
-      <div className="overflow-x-auto" style={{ flex: 1 }}>
-        <div className="container mx-auto p-8 bg-gray-100 rounded-md shadow-md">
-          <h2 className="text-3xl font-semibold mb-4">
-            Create a Category for Coffee
-          </h2>
-          <button className="btn" onClick={openModal}>
-            Add new Category
-          </button>
-          <dialog id="my_modal_3" className="modal">
-            <div className="modal-box">
-              <form onSubmit={handleSubmit} method="dialog">
-                <button
-                  className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                  onClick={closeModal}
-                >
-                  ✕
-                </button>
-                <div>
-                  <label htmlFor="name" className="text-sm font-semibold">
-                    Name:
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={categoryData.name}
-                    onChange={handleInputChange}
-                    required
-                    className="input input-primary"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="description" className="text-sm font-semibold">
-                    Description:
-                  </label>
-                  <textarea
-                    name="description"
-                    value={categoryData.description}
-                    onChange={handleInputChange}
-                    required
-                    className="input input-primary h-24"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="images" className="text-sm font-semibold">
-                    Images (optional):
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    name="images"
-                    onChange={handleImageUpload}
-                    multiple
-                    className="file-input"
-                  />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Uploaded Images:</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {categoryData.images.map((image, index) => (
-                      <div key={index} className="relative">
-                        <img
-                          src={URL.createObjectURL(image)}
-                          alt={`Uploaded Image ${index}`}
-                          className="rounded-md w-full h-40 object-cover"
-                        />
-                        <button
-                          onClick={() => handleImageRemove(index)}
-                          className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <button type="submit" className="mt-4 btn btn-primary">
-                  Create Category
-                </button>
-              </form>
-            </div>
-          </dialog>
+    <main className='p-3 max-w-4xl mx-auto'>
+      <h1 className='text-3xl font-semibold text-center my-7'>
+        Create a Category
+      </h1>
+      <form onSubmit={handleSubmit} className='flex flex-col sm:flex-row gap-4'>
+        <div className='flex flex-col gap-4 flex-1'>
+          <input
+            type='text'
+            placeholder='Name'
+            className='border p-3 rounded-lg'
+            id='name'
+            maxLength='62'
+            minLength='10'
+            required
+            onChange={handleChange}
+            value={formData.name}
+          />
+          <textarea
+            type='text'
+            placeholder='Description'
+            className='border p-3 rounded-lg'
+            id='description'
+            required
+            onChange={handleChange}
+            value={formData.description}
+          />
         </div>
-      </div>
-    </div>
+        <div className='flex flex-col flex-1 gap-4'>
+          <p className='font-semibold'>
+            Images:
+            <span className='font-normal text-gray-600 ml-2'>
+              The first image will be the cover (max 6)
+            </span>
+          </p>
+          <div className='flex gap-4'>
+            <input
+              onChange={(e) => setFiles(e.target.files)}
+              className='p-3 border border-gray-300 rounded w-full'
+              type='file'
+              id='images'
+              accept='image/*'
+              multiple
+            />
+            <button
+              type='button'
+              disabled={uploading}
+              onClick={handleImageSubmit}
+              className='p-3 text-green-700 border border-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80'
+            >
+              {uploading ? 'Uploading...' : 'Upload'}
+            </button>
+          </div>
+          <p className='text-red-700 text-sm'>
+            {imageUploadError && imageUploadError}
+          </p>
+          {formData.imageUrls.length > 0 &&
+            formData.imageUrls.map((url, index) => (
+              <div
+                key={url}
+                className='flex justify-between p-3 border items-center'
+              >
+                <img
+                  src={url}
+                  alt='category image'
+                  className='w-20 h-20 object-contain rounded-lg'
+                />
+                <button
+                  type='button'
+                  onClick={() => handleRemoveImage(index)}
+                  className='p-3 text-red-700 rounded-lg uppercase hover:opacity-75'
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+          <button
+            disabled={loading || uploading}
+            className='p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
+          >
+            {loading ? 'Creating...' : 'Create category'}
+          </button>
+          {error && <p className='text-red-700 text-sm'>{error}</p>}
+        </div>
+      </form>
+    </main>
   );
 }

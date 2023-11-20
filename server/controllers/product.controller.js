@@ -1,109 +1,82 @@
 // product.controller.js
 import Product from '../models/product.model.js';
-import cloudinary from 'cloudinary';
+import { errorHandler } from '../utils/error.js';
 
-export const createProduct = async (req, res) => {
-  try {
-    const { name, description, price, category, quantity } = req.body;
-    const images = req.files;
 
-    if (!name || !description || !price || !category) {
-      return res.status(400).json({ error: 'Name, description, price, and category are required' });
-    }
-
-    const newProduct = new Product({
-      name,
-      description,
-      price,
-      category,
-      quantity: quantity || 0, 
-      images: [],
-    });
-
-    if (images && images.length > 0) {
-      for (const image of images) {
-        const result = await cloudinary.v2.uploader.upload(image.path);
-        newProduct.images.push({
-          public_id: result.public_id,
-          url: result.secure_url,
-        });
-      }
-    }
-
-    const savedProduct = await newProduct.save();
-
-    res.status(201).json(savedProduct);
-  } catch (error) {
-    console.error('Error creating product:', error);
-    res.status(500).json({ error: 'An error occurred while creating the product' });
-  }
+export const createProduct = async (req, res, next) => {
+ try {
+  const product = await Product.create(req.body);
+  return res.status(201).json(product);
+ } catch (error) {
+   next(error);
+ }
 };
 
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate('category');
-    res.status(200).json(products);
+    const limit = parseInt(req.query.limit) || 9;
+    const startIndex = parseInt(req.query.startIndex) || 0;
+
+    let searchTerm = req.query.searchTerm || '';
+
+    const sort = req.query.sort || 'createdAt';
+    const order = req.query.order || 'desc';
+
+    const products = await Product.find({
+      name: { $regex: searchTerm, $options: 'i' },
+    })
+      .sort({ [sort]: order })
+      .limit(limit)
+      .skip(startIndex);
+
+    return res.status(200).json(products);
   } catch (error) {
-    console.error('Error getting products:', error);
-    res.status(500).json({ error: 'An error occurred while fetching products' });
+    next(error);
   }
 };
 
-export const editProduct = async (req, res) => {
+export const getProduct = async (req, res, next) => {
   try {
-    const productId = req.params.id;
-    const { name, description, price, category, quantity } = req.body;
-    const images = req.files;
-
-    const product = await Product.findById(productId);
-
+    const product = await Product.findById(req.params.id);
     if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
+      return next(errorHandler(404, 'Product not found!'));
     }
-
-    // Update the product fields
-    product.name = name || product.name;
-    product.description = description || product.description;
-    product.price = price || product.price;
-    product.category = category || product.category;
-    product.quantity = quantity || product.quantity;
-
-    if (images && images.length > 0) {
-      // Handle image updates as needed
-      product.images = [];
-      for (const image of images) {
-        const result = await cloudinary.v2.uploader.upload(image.path);
-        product.images.push({
-          public_id: result.public_id,
-          url: result.secure_url,
-        });
-      }
-    }
-
-    const updatedProduct = await product.save();
-
-    res.status(200).json(updatedProduct);
+    res.status(200).json(product);
   } catch (error) {
-    console.error('Error editing product:', error);
-    res.status(500).json({ error: 'An error occurred while editing the product' });
+    next(error);
   }
 };
 
-
-export const deleteProduct = async (req, res) => {
+export const updateProduct = async (req, res, next) => {
+  const product = await Product.findById(req.params.id);
+  if (!product) {
+    return next(errorHandler(404, 'Product not found!'));
+  }
+ 
   try {
-    const productId = req.params.id;
-    const product = await Product.findById(productId);
-
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-    await Product.deleteOne({ _id: productId }); 
-
-    res.status(204).send(); 
+    const updateProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    res.status(200).json(updateProduct);
   } catch (error) {
-    console.error('Error deleting product:', error);
-    res.status(500).json({ error: 'An error occurred while deleting the product' });
+    next(error);
+  }
+};
+
+export const deleteProduct= async (req, res, next) => {
+  const product = await Product.findById(req.params.id);
+
+  if (!product) {
+    return next(errorHandler(404, 'Product not found!'));
+  }
+
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+    res.status(200).json('Product has been deleted!');
+  } catch (error) {
+    next(error);
   }
 };
 

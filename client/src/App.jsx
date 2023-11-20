@@ -21,6 +21,7 @@ import PagenotFound from "./pages/PagenotFound";
 // Admin pages
 import AdminPanel from "./components/admin/AdminPanel";
 import CategoryTable from "./components/admin/Category/CategoryTable";
+import UpdateCategory from "./components/admin/Category/UpdateCategory";
 import ProductTable from "./components/admin/Product/ProductTable";
 import OrderTable from "./components/admin/OrderTable";
 import PostTable from "./components/admin/Post/PostTable";
@@ -61,6 +62,11 @@ const App = () => {
             path="/category-table"
             element={<AdminRoutesWrapper element={<CategoryTable />} />}
           />
+          <Route
+            path='/update-category/:categoryId'
+            element={<UpdateCategory />}
+          />
+
           <Route
             path="/product-table"
             element={<AdminRoutesWrapper element={<ProductTable />} />}

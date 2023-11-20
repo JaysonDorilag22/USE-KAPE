@@ -1,111 +1,121 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from 'firebase/storage';
+import { app } from '../../../firebase';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 export default function CreateProduct() {
-  const [productData, setProductData] = useState({
+  const navigate = useNavigate();
+  const [files, setFiles] = useState([]);
+  const [formData, setFormData] = useState({
+    imageUrls: [],
     name: '',
     description: '',
-    price: 0,
-    category: '',
-    quantity: 0,
-    images: [],
   });
+  const [imageUploadError, setImageUploadError] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [categories, setCategories] = useState([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
+  const handleImageSubmit = (e) => {
+    if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
+      setUploading(true);
+      setImageUploadError(false);
+      const promises = [];
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get('/api/category/categories'); // Update the endpoint based on your backend API
-        setCategories(response.data);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      } finally {
-        setLoadingCategories(false);
+      for (let i = 0; i < files.length; i++) {
+        promises.push(storeImage(files[i]));
       }
-    };
 
-    fetchCategories();
-  }, []);
+      Promise.all(promises)
+        .then((urls) => {
+          setFormData({
+            ...formData,
+            imageUrls: formData.imageUrls.concat(urls),
+          });
+          setImageUploadError(false);
+          setUploading(false);
+        })
+        .catch((err) => {
+          setImageUploadError('Image upload failed (2 mb max per image)');
+          setUploading(false);
+        });
+    } else {
+      setImageUploadError('You can only upload 6 images per category');
+      setUploading(false);
+    }
+  };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProductData({
-      ...productData,
-      [name]: value,
+  const storeImage = async (file) => {
+    return new Promise((resolve, reject) => {
+      const storage = getStorage(app);
+      const fileName = new Date().getTime() + file.name;
+      const storageRef = ref(storage, fileName);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
+        },
+        (error) => {
+          reject(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            resolve(downloadURL);
+          });
+        }
+      );
     });
   };
 
-  const handleImageUpload = (e) => {
-    const files = e.target.files;
-    setProductData({
-      ...productData,
-      images: [...productData.images, ...files],
+  const handleRemoveImage = (index) => {
+    setFormData({
+      ...formData,
+      imageUrls: formData.imageUrls.filter((_, i) => i !== index),
     });
   };
 
-  const handleImageRemove = (index) => {
-    const updatedImages = [...productData.images];
-    updatedImages.splice(index, 1);
-    setProductData({
-      ...productData,
-      images: updatedImages,
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const formData = new FormData();
-    formData.append('name', productData.name);
-    formData.append('description', productData.description);
-    formData.append('price', productData.price);
-    formData.append('category', productData.category);
-    formData.append('quantity', productData.quantity);
-
-    for (const file of productData.images) {
-      formData.append('images', file);
-    }
-
     try {
-      const response = await axios.post('/api/product/create', formData);
-
-      if (response.status === 201) {
-        // Successful creation, handle response data
-        const data = response.data;
-        console.log(data);
-
-        // Clear the form or close the modal after successful creation
-        setProductData({
-          name: '',
-          description: '',
-          price: 0,
-          category: '',
-          quantity: 0,
-          images: [],
-        });
-
-        // Close the modal
-        closeModal();
-  
-        // Navigate to the category table
-        window.location.reload();
-      } else {
-        // Handle errors here
-        console.error('Error creating product');
+      if (formData.imageUrls.length < 1)
+        return setError('You must upload at least one image');
+      setLoading(true);
+      setError(false);
+      const res = await fetch('/api/category/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+        }),
+      });
+      const data = await res.json();
+      setLoading(false);
+      if (data.success === false) {
+        setError(data.message);
       }
+      window.location.reload();
     } catch (error) {
-      console.error('Error creating product:', error);
+      setError(error.message);
+      setLoading(false);
     }
-  };
-
-  const openModal = () => {
-    document.getElementById('create_product_modal').showModal();
-  };
-
-  const closeModal = () => {
-    document.getElementById('create_product_modal').close();
   };
 
   return (

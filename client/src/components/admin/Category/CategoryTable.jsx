@@ -16,40 +16,41 @@ export default function CategoryTable() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get("/api/category/categories")
-      .then((response) => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("/api/category/categories");
         setCategories(response.data);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching categories:", error);
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchCategories();
   }, []);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (
       window.confirm("Are you sure you want to delete the selected categories?")
     ) {
-      selectedCategories.forEach((categoryId) => {
-        axios
-          .delete(`/api/category/delete/${categoryId}`)
-          .then((response) => {
-            setCategories((prevCategories) =>
-              prevCategories.filter((category) => category._id !== categoryId)
-            );
+      try {
+        await Promise.all(
+          selectedCategories.map(async (categoryId) => {
+            await axios.delete(`/api/category/delete/${categoryId}`);
           })
-          .catch((error) => {
-            console.error(
-              `Error deleting category with ID ${categoryId}:`,
-              error
-            );
-          });
-      });
+        );
 
-      setSelectedCategories([]);
+        setCategories((prevCategories) =>
+          prevCategories.filter(
+            (category) => !selectedCategories.includes(category._id)
+          )
+        );
+
+        setSelectedCategories([]);
+      } catch (error) {
+        console.error("Error deleting categories:", error);
+      }
     }
   };
 
@@ -64,23 +65,8 @@ export default function CategoryTable() {
     }
   };
 
-  const totalPages = Math.ceil(categories.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  let currentItems = categories.slice(indexOfFirstItem, indexOfLastItem);
-
-
-//Searching
-  if (searchQuery) {
-    currentItems = currentItems.filter(
-      (category) =>
-        category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        category.description.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }
-
-//Pagination
   const onPageChange = (newPage) => {
+    const totalPages = Math.ceil(categories.length / itemsPerPage);
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
     }
@@ -90,6 +76,19 @@ export default function CategoryTable() {
     setItemsPerPage(value);
     setCurrentPage(1);
   };
+
+  const totalPages = Math.ceil(categories.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  let currentItems = categories.slice(indexOfFirstItem, indexOfLastItem);
+
+  if (searchQuery) {
+    currentItems = currentItems.filter(
+      (category) =>
+        category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        category.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
 
   return (
     <div style={{ display: "flex" }}>
@@ -167,19 +166,16 @@ export default function CategoryTable() {
                 <td>{category.name}</td>
                 <td>{category.description}</td>
                 <td>
-                  {category.images.map((image, imageIndex) => (
-                    <img
-                      key={imageIndex}
-                      src={image.url}
-                      alt={`Image ${imageIndex + 1}`}
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        marginRight: "5px",
-                        display: "flex - 1",
-                      }}
-                    />
-                  ))}
+                  <div className="flex">
+                    {category.imageUrls.map((url) => (
+                      <img
+                        key={url}
+                        src={url}
+                        alt={`category-${category._id}`}
+                        className="h-20 w-20 object-cover m-1"
+                      />
+                    ))}
+                  </div>
                 </td>
                 <td>
                   <Link to={`/update-category/${category._id}`}>
