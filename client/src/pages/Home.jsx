@@ -11,8 +11,8 @@ import ProductCards from "../components/ecommerce/Product/ProductCard"
 export default function Home() {
   return (
     <div>
-      <CategoryCards />
       <ProductCards />
+      <CategoryCards />
       <div
         className="hero min-h-screen"
         style={{ backgroundImage: `url(${home})` }}

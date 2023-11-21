@@ -1,45 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  removeFromCart,
+  decreaseQuantity,
+  increaseQuantity,
+} from "../../../redux/cart/cartSlice";
 
 export default function Cart() {
-  const initialCart = JSON.parse(localStorage.getItem("cartItems")) || [];
-  const [cart, setCart] = useState(initialCart);
+  const dispatch = useDispatch();
+  const cart = useSelector((state) => state.cart);
 
   useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cart));
+    localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  const removeFromCart = (productId) => {
-    const updatedCart = cart.filter((item) => item._id !== productId);
-    setCart(updatedCart);
+  const handleRemoveFromCart = (productId) => {
+    dispatch(removeFromCart({ _id: productId }));
   };
 
-  const decreaseQuantity = (item) => {
-    const updatedCart = cart.map((cartItem) =>
-      cartItem._id === item._id
-        ? { ...cartItem, quantity: cartItem.quantity - 1 }
-        : cartItem
-    );
-
-    // If quantity becomes zero, remove the item from the cart
-    if (
-      updatedCart.find((cartItem) => cartItem._id === item._id).quantity === 0
-    ) {
-      const newCart = updatedCart.filter(
-        (cartItem) => cartItem._id !== item._id
-      );
-      setCart(newCart);
-    } else {
-      setCart(updatedCart);
-    }
+  const handleDecreaseQuantity = (item) => {
+    dispatch(decreaseQuantity({ _id: item._id }));
   };
 
-  const increaseQuantity = (item) => {
-    const updatedCart = cart.map((cartItem) =>
-      cartItem._id === item._id
-        ? { ...cartItem, quantity: cartItem.quantity + 1 }
-        : cartItem
-    );
-    setCart(updatedCart);
+  const handleIncreaseQuantity = (item) => {
+    dispatch(increaseQuantity({ _id: item._id }));
   };
 
   return (
@@ -58,9 +42,7 @@ export default function Cart() {
                 {cart.map((item) => (
                   <li key={item._id} className="flex items-center gap-4">
                     <img
-                      src={item.imageUrls[0]} // Replace with the actual image URL
-                    // src={product.imageUrls[0]}
-
+                      src={item.imageUrls && item.imageUrls[0]}
                       alt=""
                       className="h-16 w-16 rounded object-cover"
                     />
@@ -70,12 +52,12 @@ export default function Cart() {
 
                       <dl className="mt-0.5 space-y-px text-[10px] text-gray-600">
                         <div>
-                          <dt className="inline">Decription:  </dt>
+                          <dt className="inline">Description: </dt>
                           <dd className="inline">{item.description}</dd>
                         </div>
 
                         <div>
-                          <dt className="inline">Price:  </dt>
+                          <dt className="inline">Price: </dt>
                           <dd className="inline">{item.price}</dd>
                         </div>
                       </dl>
@@ -91,7 +73,7 @@ export default function Cart() {
                         <div className="flex items-center">
                           <button
                             type="button"
-                            onClick={() => decreaseQuantity(item)}
+                            onClick={() => handleDecreaseQuantity(item)}
                             className="h-8 px-2 border border-r-0 border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 focus:outline-none"
                           >
                             -
@@ -102,23 +84,13 @@ export default function Cart() {
                             min="1"
                             value={item.quantity}
                             id={`Qty-${item._id}`}
-                            onChange={(e) => {
-                              const updatedCart = cart.map((cartItem) =>
-                                cartItem._id === item._id
-                                  ? {
-                                      ...cartItem,
-                                      quantity: parseInt(e.target.value, 10),
-                                    }
-                                  : cartItem
-                              );
-                              setCart(updatedCart);
-                            }}
                             className="h-8 w-12 rounded border-gray-200 bg-gray-50 p-0 text-center text-xs text-gray-600 [-moz-appearance:_textfield] focus:outline-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+                            readOnly
                           />
 
                           <button
                             type="button"
-                            onClick={() => increaseQuantity(item)}
+                            onClick={() => handleIncreaseQuantity(item)}
                             className="h-8 px-2 border border-l-0 border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 focus:outline-none"
                           >
                             +
@@ -128,7 +100,7 @@ export default function Cart() {
 
                       <button
                         className="text-gray-600 transition hover:text-red-600"
-                        onClick={() => removeFromCart(item._id)}
+                        onClick={() => handleRemoveFromCart(item._id)}
                       >
                         <span className="sr-only">Remove item</span>
 
@@ -161,7 +133,8 @@ export default function Cart() {
                         ${" "}
                         {cart
                           .reduce(
-                            (total, item) => total + item.quantity * item.price,
+                            (total, item) =>
+                              total + item.quantity * item.price,
                             0
                           )
                           .toFixed(2)}
@@ -170,10 +143,7 @@ export default function Cart() {
                   </dl>
 
                   <div className="flex justify-end">
-                    <a
-              
-                      className="block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600"
-                    >
+                    <a className="block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
                       Checkout
                     </a>
                   </div>

@@ -1,23 +1,29 @@
-import { useDispatch } from "react-redux";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { FaSearch } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import logo from "../assets/images/logo.png";
 import { FiShoppingCart } from "react-icons/fi";
+import logo from "../assets/images/logo.png";
 import {
   deleteUserFailure,
   deleteUserSuccess,
   signOutUserStart,
 } from "../../src/redux/user/userSlice.js";
+import { clearCart } from "../../src/redux/cart/cartSlice";
 
 export default function Header() {
-  const { currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const { currentUser } = useSelector((state) => state.user);
+  const cart = useSelector((state) => state.cart);
+
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
   const handleSignOut = async () => {
     try {
       dispatch(signOutUserStart());
+      dispatch(clearCart());
       const res = await fetch("/api/auth/signout");
       const data = await res.json();
       if (data.success === false) {
@@ -30,16 +36,8 @@ export default function Header() {
     }
   };
 
-  const initialCart = JSON.parse(localStorage.getItem("cartItems")) || [];
-  const [cart, setCart] = useState(initialCart);
-
-  useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cart));
-  }, [cart]);
-
-  // Calculate the total items in the cart
-  // const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
   const totalItems = cart.length;
+
   return (
     <header className="bg-white-200 shadow-md">
       <div className="flex justify-between items-center max-w-6xl mx-auto p-3">
@@ -49,7 +47,6 @@ export default function Header() {
         {currentUser ? (
           <div className="flex items-center">
             <div className="dropdown dropdown-end ml-2">
-              {/* Cart dropdown */}
               <label tabIndex={0} className="btn btn-ghost btn-circle">
                 <div className="indicator">
                   <FiShoppingCart className="h-5 w-5" />
@@ -62,28 +59,40 @@ export default function Header() {
                 <div className="card-body">
                   <span className="font-bold text-lg">{totalItems} Items</span>
                   <ul className="divide-y divide-gray-200">
-                    {cart.map((item) => (
-                      <li
-                        key={item._id}
-                        className="flex items-center justify-between py-2"
-                      >
-                        <span>
-                          <img
-                            src={item.imageUrls[0]} // Replace with the actual image URL
-                            // src={product.imageUrls[0]}
-
-                            alt=""
-                            className="h-16 w-16 rounded object-cover"
-                          />
-                        </span>
-                        <span>{item.name}</span>
-                        <span>{item.quantity}</span>
-                      </li>
-                    ))}
+                    {cart &&
+                      cart.map((item) => (
+                        <li
+                          key={item._id}
+                          className="flex items-center justify-between py-2"
+                        >
+                          <span>
+                            <img
+                              src={item.imageUrls && item.imageUrls[0]}
+                              alt=""
+                              className="h-16 w-16 rounded object-cover"
+                            />
+                          </span>
+                          <span>{item.name}</span>
+                          <span>{item.quantity}</span>
+                        </li>
+                      ))}
                   </ul>
+                  <div className="flex justify-between">
+                    <dt>Subtotal</dt>
+                    <dd>
+                      ${" "}
+                      {cart
+                        .reduce(
+                          (total, item) => total + item.quantity * item.price,
+                          0
+                        )
+                        .toFixed(2)}
+                    </dd>
+                  </div>
+
                   <div className="card-actions">
                     <Link to="/cart">
-                      <button className="block rounded w-full bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
+                      <button className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80">
                         Checkout
                       </button>
                     </Link>
@@ -92,7 +101,6 @@ export default function Header() {
               </div>
             </div>
             <div className="dropdown dropdown-end ml-5">
-              {/* Avatar dropdown */}
               <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
                 {currentUser ? (
                   <div className="w-10 rounded-full">
@@ -130,19 +138,15 @@ export default function Header() {
         ) : (
           <div>
             <Link to="/sign-in">
-              <a className="inline-block rounded border border-slate-600 bg-slate-600 px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-slate-600 focus:outline-none focus:ring active:text-slate-500">
+              <button className="w-full inline-block rounded border border-slate-600 bg-slate-600 px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-slate-600 focus:outline-none focus:ring active:text-slate-500">
                 Log in
-              </a>
+              </button>
             </Link>
             <Link to="/sign-up">
-              <a className="inline-block rounded border border-slate-600 px-12 py-3 text-sm font-medium text-slate-600 hover:bg-slate-600 hover:text-white focus:outline-none focus:ring active:bg-slate-500 ml-3">
+              <button className="inline-block rounded border border-slate-600 px-12 py-3 text-sm font-medium text-slate-600 hover:bg-slate-600 hover:text-white focus:outline-none focus:ring active:bg-slate-500 ml-3">
                 Register
-              </a>
+              </button>
             </Link>
-
-            {/* Base */}
-
-            {/* Border */}
           </div>
         )}
       </div>
