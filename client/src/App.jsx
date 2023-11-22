@@ -16,6 +16,8 @@ import Footer from "./components/Footer";
 import NewPassword from "./components/user/NewPassword";
 import CategoryList from "./components/ecommerce/Category/CategoryCard";
 import Cart from "./components/ecommerce/Cart/Cart";
+import Checkout from "./components/ecommerce/Cart/Checkout";
+import OrderSucess from "./components/ecommerce/Cart/OrderSucess";
 import PagenotFound from "./pages/PagenotFound";
 
 // Admin pages
@@ -52,6 +54,10 @@ const App = () => {
           <Route path="/reset-password" element={<NewPassword />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/sucess" element={<OrderSucess />} />
+
+
           <Route path="/category-list" element={<CategoryList />} />
 
           {/* Routes for Admin only - using AdminRoutesWrapper */}

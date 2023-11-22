@@ -5,6 +5,7 @@ import {
   decreaseQuantity,
   increaseQuantity,
 } from "../../../redux/cart/cartSlice";
+import { Link } from "react-router-dom";
 
 export default function Cart() {
   const dispatch = useDispatch();
@@ -143,9 +144,11 @@ export default function Cart() {
                   </dl>
 
                   <div className="flex justify-end">
-                    <a className="block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
+                  <Link to={'/checkout'}>
+                    <button className="block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
                       Checkout
-                    </a>
+                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
