@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function OrderDetails() {
   const [order, setOrder] = useState({});
@@ -8,6 +9,7 @@ export default function OrderDetails() {
   const [loadingOrder, setLoadingOrder] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const { orderId } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -51,6 +53,7 @@ export default function OrderDetails() {
 
       if (response.data.message === "Order cancelled successfully") {
         // Optionally, you can update the state or take other actions
+        navigate('/orders')
         console.log("Order cancelled successfully");
       } else {
         console.error("Failed to cancel the order");
