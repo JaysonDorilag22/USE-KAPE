@@ -1,6 +1,6 @@
 // routes/orders.js
 import express from 'express';
-import { createOrder,  getOrder,  getOrders, getUserOrders, updateOrderStatus } from '../controllers/order.controller.js';
+import { cancelOrder, createOrder,  getOrder,  getOrders, getUserOrders, updateOrderStatus } from '../controllers/order.controller.js';
 
 
 const router = express.Router();
@@ -9,6 +9,7 @@ const router = express.Router();
 router.post('/create', createOrder); // User: Create a new order
 router.get('/get/:orderId', getOrder); // User: Get a specific order by ID
 router.get('/user/:userId', getUserOrders); // User: Get all orders for a specific user
+router.put('/cancel/:orderId', cancelOrder); // User: Cancel a specific order
 
 // Admin routes
 router.get('/orders', getOrders); // Admin: Get all orders for all users

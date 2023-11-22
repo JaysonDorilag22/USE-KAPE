@@ -221,7 +221,7 @@ const navigate = useNavigate();
                     >
                       <div className="flex items-center">
                         <img
-                          src={item.image}
+                          src={item.imageUrls}
                           alt={item.title}
                           className="w-12 h-12 object-cover mr-4"
                         />

@@ -69,9 +69,6 @@ export const createOrder = async (req, res, next) => {
     }
   };
   
-
-  
-
 export const getUserOrders = async (req, res, next) => {
   try {
     const userId = req.params.userId;
@@ -122,6 +119,29 @@ export const updateOrderStatus = async (req, res, next) => {
 
     // Return the updated order
     res.status(200).json({ message: 'Order status updated successfully', order });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const cancelOrder = async (req, res, next) => {
+  try {
+    const orderId = req.params.orderId;
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    if (order.status === 'Delivered') {
+      return res.status(400).json({ error: 'Cannot cancel a delivered order' });
+    }
+    order.status = 'Cancelled';
+    await order.save();
+
+    res.status(200).json({ message: 'Order cancelled successfully', order });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
