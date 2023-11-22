@@ -1,3 +1,4 @@
+// orderSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const orderSlice = createSlice({
@@ -12,9 +13,18 @@ const orderSlice = createSlice({
     clearOrders: (state) => {
       state.orders = [];
     },
+    updateStatus: (state, action) => {
+      // Find the order by ID and update its status
+      const { orderId, newStatus } = action.payload;
+      const orderToUpdate = state.orders.find(order => order.id === orderId);
+
+      if (orderToUpdate) {
+        orderToUpdate.status = newStatus;
+      }
+    },
   },
 });
 
-export const { addOrder, clearOrders } = orderSlice.actions;
+export const { addOrder, clearOrders, updateStatus } = orderSlice.actions;
 
 export default orderSlice.reducer;

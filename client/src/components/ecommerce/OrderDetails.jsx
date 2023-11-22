@@ -71,6 +71,9 @@ export default function OrderDetails() {
           <h2 className="text-2xl font-bold mb-4">
             Order Details for Order ID: {orderId}
           </h2>
+          <h2 className="text-2xl font-bold mb-4">
+            Reciever: {order.shippingAddress.recievername}
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div className="mb-4">

@@ -14,7 +14,7 @@ import ForgotPassword from "./components/user/ForgotPassword";
 
 import Profile from "./components/user/Profile";
 import UserOrder from "./components/ecommerce/UserOrder";
-import OrderDetails from "./components/admin/Order/OrderDetails";
+import OrderDetails from "./components/ecommerce/OrderDetails";
 
 import Footer from "./components/Footer";
 import NewPassword from "./components/user/NewPassword";
@@ -30,8 +30,9 @@ import CategoryTable from "./components/admin/Category/CategoryTable";
 import UpdateCategory from "./components/admin/Category/UpdateCategory";
 import ProductTable from "./components/admin/Product/ProductTable";
 import UpdateProduct from "./components/admin/Product/UpdateProduct";
-import OrderTable from "./components/admin/OrderTable";
+import OrderTable from "./components/admin/Order/OrderTable";
 import PostTable from "./components/admin/Post/PostTable";
+import AdminOrderDetails from "./components/admin/Order/AdminOrderDetails";
 
 
 const AdminRoutesWrapper = ({ element }) => {
@@ -98,6 +99,10 @@ const App = () => {
           <Route
             path="/order-table"
             element={<AdminRoutesWrapper element={<OrderTable />} />}
+          />
+          <Route
+            path="/orderdetails/:orderId"
+            element={<AdminRoutesWrapper element={<AdminOrderDetails />} />}
           />
 
           {/* Redirect to Home for unknown routes */}

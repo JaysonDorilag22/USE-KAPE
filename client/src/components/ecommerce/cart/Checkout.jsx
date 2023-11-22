@@ -23,6 +23,7 @@ const navigate = useNavigate();
     city: "",
     state: "",
     zip: "",
+    recievername:"",
   });
 
   const [paymentMethod, setPaymentMethod] = useState("Credit Card");
@@ -169,6 +170,23 @@ const navigate = useNavigate();
                         name="zip"
                         onChange={handleInputChange}
                         value={shippingAddress.zip}
+                        required
+                        className="mt-1 p-2 w-full border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="zip"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Name:
+                      </label>
+                      <input
+                        type="text"
+                        id="recievername"
+                        name="recievername"
+                        onChange={handleInputChange}
+                        value={shippingAddress.recievername}
                         required
                         className="mt-1 p-2 w-full border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                       />

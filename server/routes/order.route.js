@@ -13,6 +13,6 @@ router.put('/cancel/:orderId', cancelOrder); // User: Cancel a specific order
 
 // Admin routes
 router.get('/orders', getOrders); // Admin: Get all orders for all users
-router.put('/:orderId/status', updateOrderStatus); // Admin: Update the status of a specific order
+router.put('/status/:orderId', updateOrderStatus); // Admin: Update the status of a specific order
 
 export default router;
