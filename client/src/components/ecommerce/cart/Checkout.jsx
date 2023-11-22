@@ -58,8 +58,10 @@ const navigate = useNavigate();
         userId: user._id,
         items: cart.map((item) => ({
           product: item._id,
+          name: item.name,
           quantity: item.quantity,
           price: item.price,
+          imageUrls: item.imageUrls,
         })),
         totalAmount: cart.reduce(
           (total, item) => total + item.quantity * item.price,
@@ -186,8 +188,8 @@ const navigate = useNavigate();
                         value={paymentMethod}
                         className="mt-1 p-2 w-full border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                       >
-                        <option value="Credit Card">Credit Card</option>
-                        {/* Add other payment options as needed */}
+                        <option value="COD">COD</option>
+                        <option value="Online Payment">Online Payment</option>
                       </select>
                     </div>
                   </div>

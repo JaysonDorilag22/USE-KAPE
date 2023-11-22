@@ -13,6 +13,14 @@ const orderSchema = new mongoose.Schema({
         ref: 'Product',
         required: true,
       },
+      name: {
+        type: String,
+        required: true,
+      },
+      imageUrls: {
+        type: Array,
+        required: true,
+      },
       quantity: {
         type: Number,
         required: true,
@@ -53,6 +61,8 @@ const orderSchema = new mongoose.Schema({
   paymentMethod: {
     type: String,
     required: true,
+    enum: ['COD', 'Online Payment'],
+    default: 'COD',
   },
   paymentStatus: {
     type: String,

@@ -2,6 +2,7 @@
 import Order from '../models/order.model.js';
 import User from '../models/user.model.js';
 import Product from '../models/product.model.js';
+import { errorHandler } from '../utils/error.js';
 
 export const createOrder = async (req, res, next) => {
     try {
@@ -55,31 +56,21 @@ export const createOrder = async (req, res, next) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
-  
 
   export const getOrder = async (req, res, next) => {
     try {
-      const orderId = req.params.orderId;
-  
-      // Check if orderId is a valid ObjectId
-      if (!mongoose.Types.ObjectId.isValid(orderId)) {
-        return res.status(400).json({ error: 'Invalid order ID' });
-      }
-  
-      // Fetch the order from the database
-      const order = await Order.findById(orderId);
-  
+      const order = await Order.findById(req.params.orderId);
       if (!order) {
-        return res.status(404).json({ error: 'Order not found' });
+        return next(errorHandler(404, 'Listing not found!'));
       }
-  
-      // Return the order details
-      res.status(200).json({ order });
+      res.status(200).json(order);
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      next(error);
     }
   };
+  
+
+  
 
 export const getUserOrders = async (req, res, next) => {
   try {
