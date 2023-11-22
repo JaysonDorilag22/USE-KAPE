@@ -3,59 +3,181 @@ import Order from '../models/order.model.js';
 import User from '../models/user.model.js';
 import Product from '../models/product.model.js';
 import { errorHandler } from '../utils/error.js';
+import nodemailer from 'nodemailer';
+import puppeteer from 'puppeteer';
+
+
 
 export const createOrder = async (req, res, next) => {
-    try {
-      const { userId, items, totalAmount, shippingAddress, paymentMethod } = req.body;
-  
-      // Check if the user exists
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-  
-      // Validate items (assuming items is an array of objects with productId, quantity, and price)
-      // Ensure that products exist and have sufficient quantity
-      for (const item of items) {
-        const product = await Product.findById(item.product);
-        if (!product || product.quantity < item.quantity) {
-          return res.status(400).json({ error: 'Invalid product or insufficient quantity' });
-        }
-      }
-  
-      // Create the order
-      const order = new Order({
-        user: userId,
-        items,
-        totalAmount,
-        shippingAddress,
-        paymentMethod,
-      });
-  
-      // Save the order to the database
-      await order.save();
-  
-      // Update the user's order history
-      if (!user.orderHistory) {
-        user.orderHistory = []; // Initialize orderHistory if it doesn't exist
-      }
-      user.orderHistory.push(order._id);
-      await user.save();
-  
-      // Update product quantities
-      for (const item of items) {
-        const product = await Product.findById(item.product);
-        product.quantity -= item.quantity;
-        await product.save();
-      }
-  
-      // Send a response
-      res.status(201).json({ message: 'Order created successfully', order });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+  try {
+    const { userId, items, totalAmount, shippingAddress, paymentMethod } = req.body;
+
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
-  };
+
+    // Validate items (assuming items is an array of objects with productId, quantity, and price)
+    // Ensure that products exist and have sufficient quantity
+    for (const item of items) {
+      const product = await Product.findById(item.product);
+      if (!product || product.quantity < item.quantity) {
+        return res.status(400).json({ error: 'Invalid product or insufficient quantity' });
+      }
+    }
+
+    // Create the order
+    const order = new Order({
+      user: userId,
+      items,
+      totalAmount,
+      shippingAddress,
+      paymentMethod,
+    });
+
+    // Save the order to the database
+    await order.save();
+
+    // Update the user's order history
+    if (!user.orderHistory) {
+      user.orderHistory = []; // Initialize orderHistory if it doesn't exist
+    }
+    user.orderHistory.push(order._id);
+    await user.save();
+
+    // Update product quantities
+    for (const item of items) {
+      const product = await Product.findById(item.product);
+      product.quantity -= item.quantity;
+      await product.save();
+    }
+
+    // Send email to the user with order details and PDF attachment
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'jayson.dorilag@tup.edu.ph',
+        pass: 'mgvs hnut wpjx byoq',
+      },
+    });
+
+    const mailOptions = {
+      from: 'useKape@gmail.com',
+      to: user.email,
+      subject: 'Order Confirmation',
+      html: `
+        <p>Hello ${user.username},</p>
+        <p>Your order has been successfully placed. Here are the details:</p>
+        <p>Total Amount: $${totalAmount}</p>
+        <p>Items:</p>
+        <ul>
+          ${items.map(item => `<li>${item.quantity} x ${item.product} - $${item.price * item.quantity}</li>`).join('')}
+        </ul>
+        <p>Shipping Address: ${shippingAddress}</p>
+        <p>Payment Method: ${paymentMethod}</p>
+        <p>Thank you for your purchase!</p>
+      `,
+      attachments: [
+        {
+          filename: 'order_details.pdf',
+          content: await generatePDF(order),
+        },
+      ],
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    // Send a response
+    res.status(201).json({ message: 'Order created successfully', order });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+async function generatePDF(order) {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+
+  const pdfContent = `
+    <h1>Order Details</h1>
+    <p>Total Amount: $${order.totalAmount}</p>
+    <p>Items:</p>
+    <ul>
+      ${order.items.map(item => `
+        <li>
+          <img src="${item.imageUrls[0]}" alt="${item.name}" style="max-width: 100px; max-height: 100px;" />
+          ${item.quantity} x ${item.name} - $${item.price * item.quantity}
+        </li>
+      `).join('')}
+    </ul>
+    <p>Shipping Address: ${order.shippingAddress.street}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zip}</p>
+    <p>Payment Method: ${order.paymentMethod}</p>
+  `;
+
+  await page.setContent(pdfContent);
+
+  const pdfBuffer = await page.pdf();
+
+  await browser.close();
+
+  return pdfBuffer;
+}
+
+
+// export const createOrder = async (req, res, next) => {
+//     try {
+//       const { userId, items, totalAmount, shippingAddress, paymentMethod } = req.body;
+  
+//       // Check if the user exists
+//       const user = await User.findById(userId);
+//       if (!user) {
+//         return res.status(404).json({ error: 'User not found' });
+//       }
+  
+//       // Validate items (assuming items is an array of objects with productId, quantity, and price)
+//       // Ensure that products exist and have sufficient quantity
+//       for (const item of items) {
+//         const product = await Product.findById(item.product);
+//         if (!product || product.quantity < item.quantity) {
+//           return res.status(400).json({ error: 'Invalid product or insufficient quantity' });
+//         }
+//       }
+  
+//       // Create the order
+//       const order = new Order({
+//         user: userId,
+//         items,
+//         totalAmount,
+//         shippingAddress,
+//         paymentMethod,
+//       });
+  
+//       // Save the order to the database
+//       await order.save();
+  
+//       // Update the user's order history
+//       if (!user.orderHistory) {
+//         user.orderHistory = []; // Initialize orderHistory if it doesn't exist
+//       }
+//       user.orderHistory.push(order._id);
+//       await user.save();
+  
+//       // Update product quantities
+//       for (const item of items) {
+//         const product = await Product.findById(item.product);
+//         product.quantity -= item.quantity;
+//         await product.save();
+//       }
+  
+//       // Send a response
+//       res.status(201).json({ message: 'Order created successfully', order });
+//     } catch (error) {
+//       console.error(error);
+//       res.status(500).json({ error: 'Internal Server Error' });
+//     }
+//   };
 
   export const getOrder = async (req, res, next) => {
     try {
