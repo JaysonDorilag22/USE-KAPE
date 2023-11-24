@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef  } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CreatePost from "./CreatePost";
 import { useSelector } from "react-redux";
-import { FaHeart } from "react-icons/fa";
-export default function Feed() {
+import { FaHeart, FaTrash, FaPen } from "react-icons/fa";
+import axios from "axios";
+import { Link } from "react-router-dom";
+export default function Timeline() {
   const { currentUser } = useSelector((state) => state.user);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -10,9 +12,9 @@ export default function Feed() {
   const [commentInput, setCommentInput] = useState("");
   const loaderRef = useRef();
   console.log("username", currentUser.username);
+  console.log("username", currentUser._id);
 
   useEffect(() => {
- 
     loadPosts();
 
     const handleScroll = () => {
@@ -22,22 +24,27 @@ export default function Feed() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
-  }, []); // Empty dependency array to run the effect only once on mount
+  }, []);
 
   const isElementInViewport = (el) => {
     const rect = el.getBoundingClientRect();
-    return rect.bottom <= (window.innerHeight || document.documentElement.clientHeight);
+    return (
+      rect.bottom <=
+      (window.innerHeight || document.documentElement.clientHeight)
+    );
   };
 
   const loadPosts = async () => {
     try {
       // Fetch posts from the API (/api/post/get) using infinite scroll parameters
-      const res = await fetch(`/api/post/get?offset=${posts.length}&limit=10`);
+      const res = await fetch(
+        `/api/post/get/${currentUser._id}/?offset=${posts.length}&limit=10`
+      );
       const data = await res.json();
 
       // Check if the response has an array of posts
@@ -97,6 +104,22 @@ export default function Feed() {
       }
     } catch (error) {
       console.error("Error liking/unliking post:", error);
+    }
+  };
+
+  const handleDelete = async (postId) => {
+    try {
+      const res = await axios.delete(`/api/post/delete/${postId}`);
+      if (res.status === 200) {
+        // If the request is successful, remove the deleted post from the state
+        setPosts((prevPosts) =>
+          prevPosts.filter((post) => post._id !== postId)
+        );
+      } else {
+        console.error("Failed to delete the post.");
+      }
+    } catch (error) {
+      console.error("Error deleting post:", error);
     }
   };
 
@@ -171,21 +194,35 @@ export default function Feed() {
   return (
     <div className="max-w-4xl mx-auto p-4">
       <CreatePost />
-      {posts.map((post) => (
-        <div key={post._id} className="bg-white p-4 mb-4 shadow-md rounded-md">
+      {posts.map((post, index) => (
+        <div
+          key={post.id || index}
+          className="bg-white p-4 mb-4 shadow-md rounded-md"
+        >
           <div className="flex items-center mb-2">
             <img
-              src={post.avatar} // Use the user's avatar or a default image
+              src={post.avatar}
               alt="user-avatar"
               className="w-8 h-8 rounded-full mr-2"
             />
             <p className="font-semibold">{post.username}</p>
+            <button
+              onClick={() => handleDelete(post._id)}
+              className="ml-2 text-gray-500 hover:text-red-700 cursor-pointer"
+            >
+              <FaTrash />
+            </button>
+            <Link to={`/edit-post/${post._id}`}>
+              <button className="text-gray-500 hover:text-blue-700 cursor-pointer ml-3">
+                <FaPen />
+              </button>
+            </Link>
           </div>
           <p className="mb-2">{post.description}</p>
           <div className="grid grid-cols-2 gap-2">
             {post.imageUrls.map((imageUrl, index) => (
               <img
-                key={index}
+                key={imageUrl} // Assuming imageUrl is unique for each post
                 src={imageUrl}
                 alt={`post-${index}`}
                 className="h-auto max-w-full rounded-lg"
@@ -237,8 +274,11 @@ export default function Feed() {
       {loading && <p>Loading...</p>}
       {!loading && hasMore && (
         <div className="flex justify-center items-center h-16">
-    <span ref={loaderRef} className="loading loading-spinner loading-lg"></span>
-  </div>
+          <span
+            ref={loaderRef}
+            className="loading loading-spinner loading-lg"
+          ></span>
+        </div>
       )}
     </div>
   );

@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import { useRef, useState, useEffect } from "react";
 import {Link} from 'react-router-dom';
+import Timeline from "../social/Timeline.jsx";
 import {
   getDownloadURL,
   getStorage,
@@ -195,6 +196,7 @@ export default function Profile() {
       <p className="text-green-700 mt-5">
         {updateSuccess ? "User is updated successfully!" : ""}
       </p>
+      <Timeline/>
     </div>
   );
 }

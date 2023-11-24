@@ -48,9 +48,11 @@ export default function ProductCard() {
     console.log("Updated Cart:", cart);
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // if (loading) {
+  //   return <div className="flex justify-center items-center h-16">
+  //   <span className="loading loading-spinner loading-lg"></span>
+  // </div>;
+  // }
 
   return (
     <section>

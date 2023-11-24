@@ -72,7 +72,7 @@ export default function Header() {
                               className="h-16 w-16 rounded object-cover"
                             />
                           </span>
-                          <span>{item.name}</span>
+                          <span className="ml-5">{item.name}</span>
                           <span>{item.quantity}</span>
                         </li>
                       ))}
@@ -92,7 +92,7 @@ export default function Header() {
 
                   <div className="card-actions">
                     <Link to="/cart">
-                      <button className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80">
+                      <button className="mt-2 w-full rounded border border-slate-600 px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-600 hover:text-white focus:outline-none focus:ring active:bg-slate-500">
                         Checkout
                       </button>
                     </Link>
@@ -143,7 +143,7 @@ export default function Header() {
         ) : (
           <div>
             <Link to="/sign-in">
-              <button className="w-full inline-block rounded border border-slate-600 bg-slate-600 px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-slate-600 focus:outline-none focus:ring active:text-slate-500">
+              <button className="inline-block rounded border border-slate-600 bg-slate-600 px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-slate-600 focus:outline-none focus:ring active:text-slate-500">
                 Log in
               </button>
             </Link>

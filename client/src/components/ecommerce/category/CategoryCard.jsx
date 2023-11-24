@@ -21,10 +21,12 @@ export default function CategoryList() {
     fetchCategories();
   }, []);
 
-  if (loading) {
-    // You might want to render a loading spinner or message here
-    return <div>Loading...</div>;
-  }
+  // if (loading) {
+  //   // You might want to render a loading spinner or message here
+  //   return <div className="flex justify-center items-center h-16">
+  //   <span  className="loading loading-spinner loading-lg"></span>
+  // </div>;
+  // }
 
   return (
     <div className="py-16 bg-gray-50 overflow-hidden">
