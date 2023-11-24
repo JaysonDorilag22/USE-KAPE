@@ -23,7 +23,7 @@ import Cart from "./components/ecommerce/Cart/Cart";
 import Checkout from "./components/ecommerce/Cart/Checkout";
 import OrderSucess from "./components/ecommerce/Cart/OrderSucess";
 import PagenotFound from "./pages/PagenotFound";
-
+import Feed from "./components/social/Feed";
 // Admin pages
 import AdminPanel from "./components/admin/AdminPanel";
 import CategoryTable from "./components/admin/Category/CategoryTable";
@@ -62,6 +62,7 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/orders" element={<UserOrder />} />
           <Route path="/order-details/:orderId" element={<OrderDetails />} />
+          <Route path="/feed" element={<Feed />} />
 
           
           <Route path="/cart" element={<Cart />} />

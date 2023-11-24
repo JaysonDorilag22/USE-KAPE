@@ -1,170 +1,184 @@
-import cloudinary from 'cloudinary';
-import Post from '../models/post.model.js';
-import User from '../models/user.model.js';
+import Post from "../models/post.model.js";
+import User from "../models/user.model.js";
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
+// Create a new post
 export const createPost = async (req, res) => {
   try {
-    const { userId, description, imageUrls } = req.body;
-    const user = await User.findById(userId);
+    const { user, description, imageUrls } = req.body;
+    const userObject = await User.findById(user);
 
-    // Upload each image to Cloudinary and get secure URLs
-    const uploadedImages = await Promise.all(
-      imageUrls.map(async (imageUrl) => {
-        const uploadedImage = await cloudinary.uploader.upload(imageUrl, {
-          folder: 'posts', // Set your desired folder name
-        });
-        return uploadedImage.secure_url;
-      })
-    );
+    if (!userObject) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
     const newPost = new Post({
-      user: userId,
-      username: user.username,
+      user: userObject._id,
+      username: userObject.username,
+      avatar: userObject.avatar,
       description,
-      imageUrls: uploadedImages, // Store the secure URLs from Cloudinary
-      likes: new Map(),
-      comments: [],
+      imageUrls,
     });
 
-    await newPost.save();
-
-    const post = await Post.findById(newPost._id);
-    res.status(201).json(post);
-  } catch (err) {
-    res.status(409).json({ message: err.message });
+    const savedPost = await newPost.save();
+    res.status(201).json(savedPost);
+  } catch (error) {
+    console.error("Error creating post:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-  
-  /* READ */
-  export const getFeedPosts = async (req, res) => {
-    try {
-      const post = await Post.find();
-      res.status(200).json(post);
-    } catch (err) {
-      res.status(404).json({ message: err.message });
+
+// Get posts for the feed
+export const getFeedPosts = async (req, res) => {
+  try {
+    // You may need to customize this query based on your specific requirements
+    const feedPosts = await Post.find().sort({ createdAt: -1 }).limit(10);
+    res.status(200).json(feedPosts);
+  } catch (error) {
+    console.error("Error getting feed posts:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// Get posts for a specific user
+export const getUserPosts = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const userPosts = await Post.find({ user: userId }).sort({ createdAt: -1 });
+    res.status(200).json(userPosts);
+  } catch (error) {
+    console.error("Error getting user posts:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// Like a post
+export const likePost = async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const userId = req.user.id; // Assuming you have user information in req.user
+
+    // Check if the user has already liked the post
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
     }
-  };
-  
-  export const getUserPosts = async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const post = await Post.find({ userId });
-      res.status(200).json(post);
-    } catch (err) {
-      res.status(404).json({ message: err.message });
-    }
-  };
-  
-  /* UPDATE */
-  export const likePost = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { userId } = req.body;
-      const post = await Post.findById(id);
-      const isLiked = post.likes.get(userId);
-  
-      if (isLiked) {
-        post.likes.delete(userId);
-      } else {
-        post.likes.set(userId, true);
-      }
-  
-      const updatedPost = await Post.findByIdAndUpdate(
-        id,
-        { likes: post.likes },
-        { new: true }
+
+    const userHasLiked = post.likedBy.includes(userId);
+
+    if (userHasLiked) {
+      // User has already liked the post, so clicking again should unlike
+      await Post.updateOne(
+        { _id: postId },
+        {
+          $inc: { likes: -1 },
+          $pull: { likedBy: userId },
+        }
       );
-  
-      res.status(200).json(updatedPost);
-    } catch (err) {
-      res.status(404).json({ message: err.message });
+    } else {
+      // User has not liked the post, so clicking should like
+      await Post.updateOne(
+        { _id: postId },
+        {
+          $inc: { likes: 1 },
+          $push: { likedBy: userId },
+        }
+      );
     }
-  };
 
-  export const editPost = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { description, imageUrls } = req.body;
-  
-      // Check if the post exists
-      const existingPost = await Post.findById(id);
-      if (!existingPost) {
-        return res.status(404).json({ message: 'Post not found' });
-      }
-  
-      // Check if the user is authenticated
-      if (!req.user) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-  
-      // Check if the user is the owner of the post
-      if (existingPost.user.toString() !== req.user.id) {
-        return res.status  (403).json({ message: 'You do not have permission to edit this post' });
-      }
-  
-      // Upload new images to Cloudinary if provided
-      let updatedImages = [];
-      if (imageUrls && imageUrls.length > 0) {
-        updatedImages = await Promise.all(
-          imageUrls.map(async (imageUrl) => {
-            const uploadedImage = await cloudinary.uploader.upload(imageUrl, {
-              folder: 'posts', // Set your desired folder name
-            });
-            return uploadedImage.secure_url;
-          })
-        );
-      }
-  
-      // Replace the existing images with the new ones
-      existingPost.imageUrls = updatedImages;
-  
-      // Update the post description
-      existingPost.description = description || existingPost.description;
-  
-      const updatedPost = await existingPost.save();
-  
-      res.status(200).json(updatedPost);
-    } catch (err) {
-      res.status(400).json({ message: err.message });
-    }
-  };
-  
-  export const deletePost = async (req, res) => {
-    try {
-      const { id } = req.params;
-  
-      // Check if the post exists
-      const existingPost = await Post.findById(id);
-      if (!existingPost) {
-        return res.status(404).json({ message: 'Post not found' });
-      }
-  
-      // Check if the user is authenticated
-      if (!req.user) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-  
-      // Check if the user is the owner of the post
-      if (existingPost.user.toString() !== req.user.id) {
-        return res.status(403).json({ message: 'You do not have permission to delete this post' });
-      }
-  
-      // Delete the post
-      await Post.findByIdAndDelete(id);
-  
-      res.status(204).send(); // No content status for successful deletion
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
-  };
-  
-  
-  
+    res.status(200).json({ message: 'Like action completed' });
+  } catch (error) {
+    console.error('Error liking post:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 
+export const addComment = async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const userId = req.user.id; // Assuming you have user information in req.user
+    const { content } = req.body;
+
+    // Check if the post exists
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Assuming you have user information in req.user
+    const userObject = await User.findById(userId);
+
+    if (!userObject) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Create a new comment
+    const newComment = {
+      user: userObject._id,
+      username: userObject.username,
+      content,
+    };
+
+    // Add the new comment to the post
+    post.comments.push(newComment);
+
+    // Save the updated post
+    await post.save();
+
+    res.status(201).json({ message: 'Comment added successfully', comment: newComment });
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
+
+
+// Edit a post
+export const editPost = async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const { description, imageUrls } = req.body;
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      postId,
+      {
+        $set: {
+          description,
+          imageUrls,
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedPost) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error("Error editing post:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// Delete a post
+export const deletePost = async (req, res) => {
+  try {
+    const postId = req.params.postId;
+
+    const deletedPost = await Post.findByIdAndRemove(postId);
+
+    if (!deletedPost) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    res.status(200).json({ message: "Post deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};

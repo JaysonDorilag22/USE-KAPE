@@ -120,6 +120,11 @@ export default function Header() {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/feed" className="justify-between">
+                    Social
+                  </Link>
+                </li>
+                <li>
                   <Link to="/orders">
                     Orders
                     <div className="badge badge-error bg-red-600 text-white badge-sm">

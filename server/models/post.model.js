@@ -1,5 +1,24 @@
 import mongoose from "mongoose";
 
+const commentSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    username: {
+      type: String,
+      required: true,
+    },
+    content: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
 const postSchema = new mongoose.Schema(
   {
     user: {
@@ -8,9 +27,13 @@ const postSchema = new mongoose.Schema(
       required: true,
     },
     username: {
-        type: String,
-        required: true,
-      },
+      type: String,
+      required: true,
+    },
+    avatar: {
+      type: String,
+      required: true,
+    },
     description: {
       type: String,
       required: true,
@@ -20,13 +43,16 @@ const postSchema = new mongoose.Schema(
       required: true,
     },
     likes: {
-      type: Map,
-      of: Boolean,
+      type: Number,
+      default: 0,
     },
-    comments: {
-      type: Array,
-      default: [],
-    },
+    likedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    comments: [commentSchema],
   },
   { timestamps: true }
 );
