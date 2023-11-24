@@ -34,6 +34,8 @@ import OrderTable from "./components/admin/Order/OrderTable";
 import PostTable from "./components/admin/Post/PostTable";
 import AdminOrderDetails from "./components/admin/Order/AdminOrderDetails";
 
+import ProductDetails from "./components/ecommerce/Product/ProductDetails";
+
 
 const AdminRoutesWrapper = ({ element }) => {
   const userRole = useSelector((state) => state.user.currentUser?.role);
@@ -66,6 +68,7 @@ const App = () => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/sucess" element={<OrderSucess />} />
 
+          <Route path="/product/:productId" element={<ProductDetails />} />
 
           <Route path="/category-list" element={<CategoryList />} />
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import slide1 from "../assets/images/slide1.jpg";
 import slide2 from "../assets/images/slide2.jpg";
@@ -6,17 +6,17 @@ import slide3 from "../assets/images/slide3.jpg";
 import hero from "../assets/images/hero.jpg";
 import home from "../assets/images/home.jpg";
 import CategoryCards from "../components/ecommerce/Category/CategoryCard";
-import ProductCards from "../components/ecommerce/Product/ProductCard"
+import ProductCards from "../components/ecommerce/Product/ProductCard";
 
 export default function Home() {
   return (
     <div>
-      <ProductCards />
-      <CategoryCards />
-      <div
-        className="hero min-h-screen"
-        style={{ backgroundImage: `url(${home})` }}
-      >
+    <ProductCards/>
+    <CategoryCards/>
+    <div
+      className="hero min-h-screen"
+      style={{ backgroundImage: `url(${home})` }}
+    >
         <div className="hero-content flex-col lg:flex-row-reverse text-white">
           <img src={hero} className="max-w-sm rounded-lg shadow-2xl" />
           <div>

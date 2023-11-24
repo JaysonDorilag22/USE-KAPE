@@ -39,7 +39,7 @@ export default function Header() {
   const totalItems = cart.length;
 
   return (
-    <header className="bg-white-200 shadow-md">
+    <header className="bg-white-600 shadow-md sticky top-0 z-50">
       <div className="flex justify-between items-center max-w-6xl mx-auto p-3">
         <Link to={"/"}>
           <img src={logo} alt="Logo" className="h-10 w-15" />

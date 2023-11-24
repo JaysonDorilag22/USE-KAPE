@@ -8,6 +8,7 @@ export default function OrderDetails() {
   const [products, setProducts] = useState([]);
   const [loadingOrder, setLoadingOrder] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [cancellationLoading, setCancellationLoading] = useState(false);
   const { orderId } = useParams();
   const navigate = useNavigate();
 
@@ -24,6 +25,7 @@ export default function OrderDetails() {
         console.error(error);
       } finally {
         setLoadingOrder(false);
+        setCancellationLoading(false);
       }
     };
 
@@ -53,7 +55,7 @@ export default function OrderDetails() {
 
       if (response.data.message === "Order cancelled successfully") {
         // Optionally, you can update the state or take other actions
-        navigate('/orders')
+        navigate("/orders");
         console.log("Order cancelled successfully");
       } else {
         console.error("Failed to cancel the order");
@@ -170,15 +172,25 @@ export default function OrderDetails() {
       </div>
       {order.status === "Processing" || order.status === "Shipped" ? (
         <a
-          className="mt-3 inline-block rounded border border-current px-8 py-3 text-sm font-medium text-red-600 transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:text-red-500"
-          onClick={handleCancelOrder} // Add this line
+          className={`mt-3 inline-block rounded border border-current px-8 py-3 text-sm font-medium ${
+            cancellationLoading
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-red-600"
+          } transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:text-red-500`}
+          onClick={handleCancelOrder}
+          disabled={cancellationLoading}
         >
           {order.status === "Processing" ? "Cancel order" : "Order shipped"}
         </a>
       ) : (
         <button
-          className="mt-3 inline-block rounded border border-current px-8 py-3 text-sm font-medium text-gray-400 cursor-pointer" // Remove the disabled attribute
+          className={`mt-3 inline-block rounded border border-current px-8 py-3 text-sm font-medium ${
+            cancellationLoading
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-gray-400 cursor-pointer"
+          }`}
           onClick={handleCancelOrder}
+          disabled={cancellationLoading}
         >
           Cancel order
         </button>

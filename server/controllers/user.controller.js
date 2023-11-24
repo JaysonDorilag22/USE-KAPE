@@ -38,13 +38,25 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
-export const deleteUser = async (req, res, next ) => {
-  if(req.user.id !== req.params.id) return next (errorHandler(401, 'Youcan only delete your own account'));
+export const deleteUser = async (req, res, next) => {
+  const isAdmin = req.user.role === 'Admin';
+  const isUserDeletingOwnAccount = req.user.id === req.params.id;
+
+  // Check if the user is either an admin or deleting their own account
+  if (!isAdmin && !isUserDeletingOwnAccount) {
+    return next(errorHandler(403, 'Forbidden: Insufficient privileges'));
+  }
+
   try {
-    await User.findByIdAndDelete(req.params.id);
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
+
+    if (!deletedUser) {
+      return next(errorHandler(404, 'User not found'));
+    }
+
     res.clearCookie('access_token');
     res.status(200).json('User has been deleted');
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};

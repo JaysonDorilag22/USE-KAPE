@@ -28,37 +28,40 @@ export default function CategoryList() {
 
   return (
     <div className="py-16 bg-gray-50 overflow-hidden">
-      <div className="container m-auto px-6 space-y-8 text-gray-500 md:px-12">
-        <div>
-          <span className="text-gray-600 text-lg font-semibold">Category Features</span>
-          <h2 className="mt-4 text-2xl text-gray-900 font-bold md:text-4xl">Explore our categories</h2>
-        </div>
-        <div className="mt-16 m-3 grid border divide-x divide-y rounded-xl overflow-hidden sm:grid-cols-2 lg:divide-y-0 lg:grid-cols-3 xl:grid-cols-4">
-          {categories.map((category) => (
-            <div key={category._id} className="relative group bg-white transition hover:z-[1] hover:shadow-2xl">
-              <div className="relative p-8 space-y-8">
-              {category.imageUrls[0] && (
-                  <img
-                    src={category.imageUrls[0]}
-                    className="w-10"
-                    width="512"
-                    height="512"
-                    alt={`category-${category._id}`}
-                  />
-                )}
-                <div className="space-y-2">
-                  <h5 className="text-xl text-gray-800 font-medium transition group-hover:text-slate-600">{category.name}</h5>
-                  <p className="text-sm text-gray-600">{category.description}</p>
-                </div>
-                <a href="#" className="flex justify-between items-center group-hover:text-slate-600">
-                  <span className="text-sm">Read more</span>
-                  <span className="-translate-x-4 opacity-0 text-2xl transition duration-300 group-hover:opacity-100 group-hover:translate-x-0"><MdOutlineArrowRightAlt /></span>
-                </a>
-              </div>
+    <div className="container m-auto px-6 space-y-8 text-gray-500 md:px-12">
+      <div>
+        <span className="text-gray-600 text-lg font-semibold">Category Features</span>
+        <h2 className="mt-4 text-2xl text-gray-900 font-bold md:text-4xl">Explore our categories</h2>
+      </div>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {categories.map((category) => (
+          <a href="#" key={category._id} className="group relative block">
+            <div className="relative h-[350px] sm:h-[450px]">
+              {category.imageUrls.map((imageUrl, index) => (
+                <img
+                  key={index}
+                  src={imageUrl}
+                  loading="lazy"
+                  alt={`category-${category._id}-${index}`}
+                  className="h-[350px] w-full object-cover transition duration-500 group-hover:scale-105 sm:h-[450px]"
+
+                />
+              ))}
             </div>
-          ))}
-        </div>
+  
+            <div className="absolute inset-0 flex flex-col items-start justify-end p-6">
+              <h3 className="text-xl font-medium text-white">{category.name}</h3>
+              {/* <span
+                className="mt-3 inline-block bg-black px-5 py-3 text-xs font-medium uppercase tracking-wide text-white"
+              >
+                Shop Now
+              </span> */}
+            </div>
+          </a>
+        ))}
       </div>
     </div>
+  </div>
+  
   );
 }
