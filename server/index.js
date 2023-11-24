@@ -6,6 +6,8 @@ import authRouter from './routes/auth.route.js';
 import categoryRouter from './routes/category.route.js'
 import productRouter from './routes/product.route.js'
 import orderRouter from './routes/order.route.js'
+import postRouter from './routes/post.route.js'
+
 
 import cloudinary from 'cloudinary';
 // import ProductRouter from './routes/product.route.js';
@@ -43,7 +45,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/category', categoryRouter);
 app.use('/api/product', productRouter);
 app.use('/api/order', orderRouter);
-
+app.use('/api/post', postRouter);
 
 
 app.use((err, req, res, next) => {
