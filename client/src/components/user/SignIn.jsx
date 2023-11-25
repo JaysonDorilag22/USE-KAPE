@@ -1,24 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 import signin from "../../assets/images/signin.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signInStart, signInSuccess, signInFailure } from "../../redux/user/userSlice";
 import Oauth from '../OAuth';
+import { Formik, Field, ErrorMessage, Form } from 'formik';
+import * as Yup from 'yup';
+
 export default function SignIn() {
-  const [formData, setFormData] = useState({});
   const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.id]: e.target.value,
-    });
-  };
+  const validationSchema = Yup.object({
+    email: Yup.string().email('Invalid email address').required('Email is required'),
+    password: Yup.string().required('Password is required'),
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values) => {
     try {
       dispatch(signInStart());
       const res = await fetch("/api/auth/signin", {
@@ -26,12 +25,11 @@ export default function SignIn() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(values),
       });
       const data = await res.json();
       if (data.success === false) {
         dispatch(signInFailure("Invalid email or password."));
-        // Set loading to false in case of an error
         dispatch(signInSuccess(false));
         return;
       }
@@ -43,17 +41,13 @@ export default function SignIn() {
       }
     } catch (error) {
       dispatch(signInFailure("An error occurred while signing in."));
-      // Set loading to false in case of an error
       dispatch(signInSuccess(false));
     }
   };
 
   return (
     <div>
-      <div
-        className="hero min-h-screen"
-        style={{ backgroundImage: `url(${signin})` }}
-      >
+      <div className="hero min-h-screen" style={{ backgroundImage: `url(${signin})` }}>
         <div className="hero-content flex-col lg:flex-row-reverse">
           <div className="text-center lg:text-left text-white">
             <h1 className="text-5xl font-bold">Sign in now!</h1>
@@ -64,57 +58,64 @@ export default function SignIn() {
             </p>
           </div>
           <div className="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-            <form onSubmit={handleSubmit} className="card-body">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Email</span>
-                </label>
-                <input
-                  type="email"
-                  placeholder="email"
-                  className="input input-bordered"
-                  required
-                  id="email"
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Password</span>
-                </label>
-                <input
-                  type="password"
-                  placeholder="password"
-                  className="input input-bordered"
-                  required
-                  id="password"
-                  onChange={handleChange}
-                />
-                <div className="label">
-                  <Link className="link link-hover" to="/forgot-password">
-                    <span className="label-text-alt link link-hover">
-                      Forgot password?
-                    </span>
-                  </Link>
+            <Formik
+              initialValues={{ email: '', password: '' }}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+            >
+              <Form className="card-body">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Email</span>
+                  </label>
+                  <Field
+                    type="email"
+                    placeholder="email"
+                    className="input input-bordered"
+                    required
+                    name="email"
+                  />
+                  <ErrorMessage name="email" component="div" className="text-red-500" />
                 </div>
-              </div>
-              <button
-                disabled={loading}
-                className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
-              >
-                {loading ? "Loading..." : "Sign In"}
-              </button>
-              <Oauth/>
-              <div className="label text-center">
-                <span className="label-text-alt">
-                  Don't you have an account?&nbsp;
-                  <Link className="link link-hover " to="/sign-up">
-                    Sign up
-                  </Link>
-                </span>
-              </div>
-              {error && <div className="text-red-500">{error}</div>}
-            </form>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Password</span>
+                  </label>
+                  <Field
+                    type="password"
+                    placeholder="password"
+                    className="input input-bordered"
+                    required
+                    name="password"
+                  />
+                  <div className="label">
+                    <Link className="link link-hover" to="/forgot-password">
+                      <span className="label-text-alt link link-hover">
+                        Forgot password?
+                      </span>
+                    </Link>
+                  </div>
+                  <ErrorMessage name="password" component="div" className="text-red-500" />
+                </div>
+                <button
+                  disabled={loading}
+                  className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
+                  type="submit"
+                >
+                  {loading ? "Loading..." : "Sign In"}
+                </button>
+                <Oauth />
+                <div className="label text-center">
+                  <span className="label-text-alt">
+                    Don't you have an account?&nbsp;
+                    <Link className="link link-hover " to="/sign-up">
+                      Sign up
+                    </Link>
+                  </span>
+                </div>
+                {error && <div className="text-red-500">{error}</div>}
+              </Form>
+            </Formik>
           </div>
         </div>
       </div>
