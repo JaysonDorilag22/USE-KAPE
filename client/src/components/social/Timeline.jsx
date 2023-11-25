@@ -4,6 +4,8 @@ import { useSelector } from "react-redux";
 import { FaHeart, FaTrash, FaPen } from "react-icons/fa";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import moment from "moment";
+
 export default function Timeline() {
   const { currentUser } = useSelector((state) => state.user);
   const [posts, setPosts] = useState([]);
@@ -263,9 +265,22 @@ export default function Timeline() {
           {/* Display comments */}
           <div className="mt-4">
             {post.comments.map((comment) => (
-              <div key={comment._id} className="flex mb-2">
-                <p className="font-semibold mr-2">{comment.username}:</p>
-                <p>{comment.content}</p>
+              <div key={comment._id} className="chat chat-start">
+                <div className="chat-image avatar">
+                  <div className="w-10 rounded-full">
+                    <img
+                      src={comment.avatar} 
+                      alt="user-avatar"
+                    />
+                  </div>
+                </div>
+                <div className="chat-bubble">
+                  <div className="font-semibold">{comment.username}</div>
+                  <div className="text-xs">
+                    {moment(comment.createdAt).fromNow()}
+                  </div>
+                  <p>{comment.content}</p>
+                </div>
               </div>
             ))}
           </div>

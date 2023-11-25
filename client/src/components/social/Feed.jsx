@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef  } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CreatePost from "./CreatePost";
 import { useSelector } from "react-redux";
 import { FaHeart } from "react-icons/fa";
+import moment from "moment";
 export default function Feed() {
   const { currentUser } = useSelector((state) => state.user);
   const [posts, setPosts] = useState([]);
@@ -9,10 +10,10 @@ export default function Feed() {
   const [hasMore, setHasMore] = useState(true);
   const [commentInput, setCommentInput] = useState("");
   const loaderRef = useRef();
+
   console.log("username", currentUser.username);
 
   useEffect(() => {
- 
     loadPosts();
 
     const handleScroll = () => {
@@ -22,24 +23,26 @@ export default function Feed() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []); // Empty dependency array to run the effect only once on mount
 
   const isElementInViewport = (el) => {
     const rect = el.getBoundingClientRect();
-    return rect.bottom <= (window.innerHeight || document.documentElement.clientHeight);
+    return (
+      rect.bottom <=
+      (window.innerHeight || document.documentElement.clientHeight)
+    );
   };
 
   const loadPosts = async () => {
     try {
       // Fetch posts from the API (/api/post/get) using infinite scroll parameters
-      const res = await fetch(`/api/post/get?offset=${posts.length}&limit=10`);
+      const res = await fetch(`/api/post/get?offset=${posts.length}&limit=3`);
       const data = await res.json();
-
       // Check if the response has an array of posts
       if (Array.isArray(data) && data.length > 0) {
         // Update state with new posts
@@ -115,11 +118,11 @@ export default function Feed() {
         body: JSON.stringify({
           userId: currentUser._id,
           username: currentUser.username,
+          avatar: currentUser.avatar,
           content: commentInput,
         }),
       });
       if (res.ok) {
-        // If the request is successful, update the post's comments in the state
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
             post._id === postId
@@ -139,7 +142,6 @@ export default function Feed() {
           )
         );
 
-        // Clear the comment input
         setCommentInput("");
       } else {
         console.error("Failed to add comment.");
@@ -172,14 +174,17 @@ export default function Feed() {
     <div className="max-w-4xl mx-auto p-4">
       <CreatePost />
       {posts.map((post) => (
-        <div key={post._id} className="bg-white p-4 mb-4 shadow-md rounded-md">
+        <div key={post._id} className="bg-white p-4 mb-5 shadow-md rounded-md">
           <div className="flex items-center mb-2">
             <img
-              src={post.avatar} // Use the user's avatar or a default image
+              src={post.avatar} 
               alt="user-avatar"
               className="w-8 h-8 rounded-full mr-2"
             />
-            <p className="font-semibold">{post.username}</p>
+            <div>
+              <p className="font-semibold ml-2">{post.username}</p>
+              <p className="text-xs ml-1">{moment(post.createdAt).fromNow()}</p>
+            </div>
           </div>
           <p className="mb-2">{post.description}</p>
           <div className="grid grid-cols-2 gap-2">
@@ -222,13 +227,24 @@ export default function Feed() {
               Add Comment
             </button>
           </div>
-
-          {/* Display comments */}
           <div className="mt-4">
             {post.comments.map((comment) => (
-              <div key={comment._id} className="flex mb-2">
-                <p className="font-semibold mr-2">{comment.username}:</p>
-                <p>{comment.content}</p>
+              <div key={comment._id} className="chat chat-start">
+                <div className="chat-image avatar">
+                  <div className="w-10 rounded-full">
+                    <img
+                      src={comment.avatar} 
+                      alt="user-avatar"
+                    />
+                  </div>
+                </div>
+                <div className="chat-bubble">
+                  <div className="font-semibold">{comment.username}</div>
+                  <div className="text-xs">
+                    {moment(comment.createdAt).fromNow()}
+                  </div>
+                  <p>{comment.content}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -237,8 +253,11 @@ export default function Feed() {
       {loading && <p>Loading...</p>}
       {!loading && hasMore && (
         <div className="flex justify-center items-center h-16">
-    <span ref={loaderRef} className="loading loading-spinner loading-lg"></span>
-  </div>
+          <span
+            ref={loaderRef}
+            className="loading loading-spinner loading-lg"
+          ></span>
+        </div>
       )}
     </div>
   );

@@ -118,6 +118,7 @@ export const addComment = async (req, res) => {
     const newComment = {
       user: userObject._id,
       username: userObject.username,
+      avatar: userObject.avatar,
       content,
     };
 
@@ -134,7 +135,23 @@ export const addComment = async (req, res) => {
   }
 };
 
+export const getPostById = async (req, res) => {
+  try {
+    const postId = req.params.postId;
 
+    // Find the post by ID in the database
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    res.status(200).json(post);
+  } catch (error) {
+    console.error("Error getting post by ID:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 
 // Edit a post
