@@ -9,6 +9,16 @@ export const test = (req, res) => {
   });
 };
 
+export const getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.find({}, '-password');
+
+    res.status(200).json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateUser = async (req, res, next) => {
   if (req.user.id !== req.params.id)
     return next(errorHandler(401, 'You can only update your own account!'));

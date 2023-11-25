@@ -187,105 +187,110 @@ export default function Timeline() {
   };
 
   const handleLoadMore = () => {
-    if (!loading && hasMore) {
+    if (!loading && hasMore && posts.length > 0) {
       setLoading(true);
       loadPosts();
     }
   };
+  
 
   return (
     <div className="max-w-4xl mx-auto p-4">
       <CreatePost />
-      {posts.map((post, index) => (
-        <div
-          key={post.id || index}
-          className="bg-white p-4 mb-4 shadow-md rounded-md"
-        >
-          <div className="flex items-center mb-2">
-            <img
-              src={post.avatar}
-              alt="user-avatar"
-              className="w-8 h-8 rounded-full mr-2"
-            />
-            <p className="font-semibold">{post.username}</p>
-            <button
-              onClick={() => handleDelete(post._id)}
-              className="ml-2 text-gray-500 hover:text-red-700 cursor-pointer"
-            >
-              <FaTrash />
-            </button>
-            <Link to={`/edit-post/${post._id}`}>
-              <button className="text-gray-500 hover:text-blue-700 cursor-pointer ml-3">
-                <FaPen />
-              </button>
-            </Link>
-          </div>
-          <p className="mb-2">{post.description}</p>
-          <div className="grid grid-cols-2 gap-2">
-            {post.imageUrls.map((imageUrl, index) => (
-              <img
-                key={imageUrl} // Assuming imageUrl is unique for each post
-                src={imageUrl}
-                alt={`post-${index}`}
-                className="h-auto max-w-full rounded-lg"
-              />
-            ))}
-          </div>
-          <button
-            onClick={() => handleLike(post._id)}
-            className={`flex items-center mt-3 ${
-              post.liked ? "text-red-500" : "text-gray-500"
-            } hover:text-red-700`}
+      {posts.length === 0 ? (
+        <p className="text-center">No posts to display.</p>
+      ) : (
+        posts.map((post, index) => (
+          <div
+            key={post.id || index}
+            className="bg-white p-4 mb-4 shadow-md rounded-md"
           >
-            <FaHeart
-              className={`mr-1 ${
-                post.liked ? "fill-current" : "stroke-current"
-              }`}
-            />
-            {post.likes}
-          </button>
-
-          {/* Comment Input Form */}
-          <div className="mt-4">
-            <input
-              type="text"
-              value={commentInput}
-              onChange={handleCommentInput}
-              placeholder="Add a comment"
-              className="w-full border border-gray-300 p-2 rounded-md"
-            />
+            <div className="flex items-center mb-2">
+              <img
+                src={post.avatar}
+                alt="user-avatar"
+                className="w-8 h-8 rounded-full mr-2"
+              />
+              <p className="font-semibold">{post.username}</p>
+              <button
+                onClick={() => handleDelete(post._id)}
+                className="ml-2 text-gray-500 hover:text-red-700 cursor-pointer"
+              >
+                <FaTrash />
+              </button>
+              <Link to={`/edit-post/${post._id}`}>
+                <button className="text-gray-500 hover:text-blue-700 cursor-pointer ml-3">
+                  <FaPen />
+                </button>
+              </Link>
+            </div>
+            <p className="mb-2">{post.description}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {post.imageUrls.map((imageUrl, index) => (
+                <img
+                  key={imageUrl} // Assuming imageUrl is unique for each post
+                  src={imageUrl}
+                  alt={`post-${index}`}
+                  className="h-auto max-w-full rounded-lg"
+                />
+              ))}
+            </div>
             <button
-              onClick={() => handleCommentSubmit(post._id)}
-              className="mt-2 w-full rounded border border-slate-600 px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-600 hover:text-white focus:outline-none focus:ring active:bg-slate-500"
+              onClick={() => handleLike(post._id)}
+              className={`flex items-center mt-3 ${
+                post.liked ? "text-red-500" : "text-gray-500"
+              } hover:text-red-700`}
             >
-              Add Comment
+              <FaHeart
+                className={`mr-1 ${
+                  post.liked ? "fill-current" : "stroke-current"
+                }`}
+              />
+              {post.likes}
             </button>
-          </div>
-
-          {/* Display comments */}
-          <div className="mt-4">
-            {post.comments.map((comment) => (
-              <div key={comment._id} className="chat chat-start">
-                <div className="chat-image avatar">
-                  <div className="w-10 rounded-full">
-                    <img
-                      src={comment.avatar} 
-                      alt="user-avatar"
-                    />
+  
+            {/* Comment Input Form */}
+            <div className="mt-4">
+              <input
+                type="text"
+                value={commentInput}
+                onChange={handleCommentInput}
+                placeholder="Add a comment"
+                className="w-full border border-gray-300 p-2 rounded-md"
+              />
+              <button
+                onClick={() => handleCommentSubmit(post._id)}
+                className="mt-2 w-full rounded border border-slate-600 px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-600 hover:text-white focus:outline-none focus:ring active:bg-slate-500"
+              >
+                Add Comment
+              </button>
+            </div>
+  
+            {/* Display comments */}
+            <div className="mt-4">
+              {post.comments.map((comment) => (
+                <div key={comment._id} className="chat chat-start">
+                  <div className="chat-image avatar">
+                    <div className="w-10 rounded-full">
+                      <img
+                        src={comment.avatar} 
+                        alt="user-avatar"
+                      />
+                    </div>
+                  </div>
+                  <div className="chat-bubble">
+                    <div className="font-semibold">{comment.username}</div>
+                    <div className="text-xs">
+                      {moment(comment.createdAt).fromNow()}
+                    </div>
+                    <p>{comment.content}</p>
                   </div>
                 </div>
-                <div className="chat-bubble">
-                  <div className="font-semibold">{comment.username}</div>
-                  <div className="text-xs">
-                    {moment(comment.createdAt).fromNow()}
-                  </div>
-                  <p>{comment.content}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
       {loading && <p>Loading...</p>}
       {!loading && hasMore && (
         <div className="flex justify-center items-center h-16">
@@ -297,4 +302,4 @@ export default function Timeline() {
       )}
     </div>
   );
-}
+      }  

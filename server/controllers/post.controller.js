@@ -1,6 +1,6 @@
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
-
+import { isAuthorized } from "../middleware/authorizationMiddleware.js";
 // Create a new post
 export const createPost = async (req, res) => {
   try {
@@ -157,45 +157,95 @@ export const getPostById = async (req, res) => {
 // Edit a post
 export const editPost = async (req, res) => {
   try {
-    const postId = req.params.postId;
-    const { description, imageUrls } = req.body;
+    // Check if the user is authorized
+    isAuthorized(req, res, async () => {
+      const postId = req.params.postId;
+      const { description, imageUrls } = req.body;
 
-    const updatedPost = await Post.findByIdAndUpdate(
-      postId,
-      {
-        $set: {
-          description,
-          imageUrls,
+      const updatedPost = await Post.findByIdAndUpdate(
+        postId,
+        {
+          $set: {
+            description,
+            imageUrls,
+          },
         },
-      },
-      { new: true }
-    );
+        { new: true }
+      );
 
-    if (!updatedPost) {
-      return res.status(404).json({ error: "Post not found" });
-    }
+      if (!updatedPost) {
+        return res.status(404).json({ error: 'Post not found' });
+      }
 
-    res.status(200).json(updatedPost);
+      res.status(200).json(updatedPost);
+    });
   } catch (error) {
-    console.error("Error editing post:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error('Error editing post:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
-// Delete a post
+// Delete Post
 export const deletePost = async (req, res) => {
   try {
-    const postId = req.params.postId;
+    // Check if the user is authorized
+    isAuthorized(req, res, async () => {
+      const postId = req.params.postId;
 
-    const deletedPost = await Post.findByIdAndRemove(postId);
+      const deletedPost = await Post.findByIdAndRemove(postId);
 
-    if (!deletedPost) {
-      return res.status(404).json({ error: "Post not found" });
-    }
+      if (!deletedPost) {
+        return res.status(404).json({ error: 'Post not found' });
+      }
 
-    res.status(200).json({ message: "Post deleted successfully" });
+      res.status(200).json({ message: 'Post deleted successfully' });
+    });
   } catch (error) {
-    console.error("Error deleting post:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error('Error deleting post:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+// export const editPost = async (req, res) => {
+//   try {
+//     const postId = req.params.postId;
+//     const { description, imageUrls } = req.body;
+
+//     const updatedPost = await Post.findByIdAndUpdate(
+//       postId,
+//       {
+//         $set: {
+//           description,
+//           imageUrls,
+//         },
+//       },
+//       { new: true }
+//     );
+
+//     if (!updatedPost) {
+//       return res.status(404).json({ error: "Post not found" });
+//     }
+
+//     res.status(200).json(updatedPost);
+//   } catch (error) {
+//     console.error("Error editing post:", error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
+
+// // Delete a post
+// export const deletePost = async (req, res) => {
+//   try {
+//     const postId = req.params.postId;
+
+//     const deletedPost = await Post.findByIdAndRemove(postId);
+
+//     if (!deletedPost) {
+//       return res.status(404).json({ error: "Post not found" });
+//     }
+
+//     res.status(200).json({ message: "Post deleted successfully" });
+//   } catch (error) {
+//     console.error("Error deleting post:", error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
