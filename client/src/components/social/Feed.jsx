@@ -11,7 +11,7 @@ export default function Feed() {
   const [commentInput, setCommentInput] = useState("");
   const loaderRef = useRef();
 
-  console.log("username", currentUser.username);
+  // console.log("username", currentUser.username);
 
   useEffect(() => {
     loadPosts();
