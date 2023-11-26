@@ -32,13 +32,14 @@ export const createPost = async (req, res) => {
 export const getFeedPosts = async (req, res) => {
   try {
     // You may need to customize this query based on your specific requirements
-    const feedPosts = await Post.find().sort({ createdAt: -1 }).limit(10);
+    const feedPosts = await Post.find().sort({ createdAt: -1 });
     res.status(200).json(feedPosts);
   } catch (error) {
     console.error("Error getting feed posts:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 // Get posts for a specific user
 export const getUserPosts = async (req, res) => {

@@ -1,4 +1,5 @@
 import React from 'react'
+import Graphs from './Graphs'
 export default function Dashboard() {
   return (
     <section className="bg-white">
@@ -45,6 +46,7 @@ export default function Dashboard() {
       </dl>
     </div>
   </div>
+  <Graphs/>
 </section>
     
   )

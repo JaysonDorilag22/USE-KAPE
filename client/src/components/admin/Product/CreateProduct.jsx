@@ -8,8 +8,7 @@ import {
 } from "firebase/storage";
 import { app } from "../../../firebase";
 import { useNavigate } from "react-router-dom";
-import { Formik, Field, ErrorMessage, Form } from "formik";
-import * as Yup from "yup";
+
 
 export default function CreateProduct() {
   const navigate = useNavigate();
@@ -25,16 +24,7 @@ export default function CreateProduct() {
     flavor: "",
     size: "",
   });
-  const validationSchema = Yup.object({
-    name: Yup.string().required("Name is required"),
-    description: Yup.string().required("Description is required"),
-    price: Yup.number().required("Price is required").positive("Price must be a positive number"),
-    quantity: Yup.number().required("Quantity is required").positive("Quantity must be a positive number"),
-    category: Yup.string().required("Category is required"),
-    type: Yup.string().required("Type is required"),
-    flavor: Yup.string().required("Flavor is required"),
-    size: Yup.string().required("Size is required"),
-  });  
+
   const [categories, setCategories] = useState([]);
   const [imageUploadError, setImageUploadError] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -184,21 +174,7 @@ export default function CreateProduct() {
       <h1 className="text-3xl font-semibold text-center my-7">
         Create a Product
       </h1>
-      <Formik
-                initialValues={{
-                  name: "",
-                  description: "",
-                  price: "",
-                  quantity: "",
-                  category: "",
-                  type: "",
-                  flavor: "",
-                  size: "",
-                }}
-                validationSchema={validationSchema}
-                onSubmit={handleSubmit}
-              >
-      <Form className="flex flex-col sm:flex-row gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
         <div className="flex flex-col gap-4 flex-1">
           <input
             type="text"
@@ -207,27 +183,19 @@ export default function CreateProduct() {
             id="name"
             maxLength="62"
             minLength="10"
+            required
             onChange={handleChange}
             value={formData.name}
           />
-          <ErrorMessage
-                        name="name"
-                        component="div"
-                        className="text-red-500"
-                      />
           <textarea
             type="text"
             placeholder="Description"
             className="border p-3 rounded-lg"
             id="description"
+            required
             onChange={handleChange}
             value={formData.description}
           />
-          <ErrorMessage
-                        name="description"
-                        component="div"
-                        className="text-red-500"
-                      />
           <input
             type="number"
             placeholder="Price"
@@ -235,30 +203,23 @@ export default function CreateProduct() {
             id="price"
             maxLength="62"
             minLength="10"
+            required
             onChange={handleChange}
             value={formData.price}
           />
-           <ErrorMessage
-                        name="price"
-                        component="div"
-                        className="text-red-500"
-                      />
           <input
             type="number"
             placeholder="Quantity"
             className="border p-3 rounded-lg"
             id="quantity"
+            required
             onChange={handleChange}
             value={formData.quantity}
           />
-           <ErrorMessage
-                        name="quantity"
-                        component="div"
-                        className="text-red-500"
-                      />
           <select
             className="border p-3 rounded-lg"
             id="category"
+            required
             onChange={handleChange}
             value={formData.category}
           >
@@ -271,14 +232,10 @@ export default function CreateProduct() {
               </option>
             ))}
           </select>
-          <ErrorMessage
-                        name="category"
-                        component="div"
-                        className="text-red-500"
-                      />
           <select
             className="border p-3 rounded-lg"
             id="type"
+            required
             onChange={handleChange}
             value={formData.type}
           >
@@ -291,11 +248,6 @@ export default function CreateProduct() {
               </option>
             ))}
           </select>
-          <ErrorMessage
-                        name="type"
-                        component="div"
-                        className="text-red-500"
-                      />
 
         </div>
         <div className="flex flex-col flex-1 gap-4">
@@ -314,15 +266,11 @@ export default function CreateProduct() {
               </option>
             ))}
           </select>
-          <ErrorMessage
-                        name="flavor"
-                        component="div"
-                        className="text-red-500"
-                      />
 
           <select
             className="border p-3 rounded-lg"
             id="size"
+            required
             onChange={handleChange}
             value={formData.size}
           >
@@ -335,11 +283,6 @@ export default function CreateProduct() {
               </option>
             ))}
           </select>
-          <ErrorMessage
-                        name="size"
-                        component="div"
-                        className="text-red-500"
-                      />
           <p className="font-semibold">
             Images:
             <span className="font-normal text-gray-600 ml-2">
@@ -396,8 +339,7 @@ export default function CreateProduct() {
           </button>
           {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>
-      </Form>
-      </Formik>
+      </form>
     </main>
   );
 }
