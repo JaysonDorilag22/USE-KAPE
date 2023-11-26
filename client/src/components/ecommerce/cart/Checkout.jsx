@@ -2,42 +2,33 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Formik, Field, ErrorMessage, Form } from "formik";
-import * as Yup from "yup";
 import {
   removeFromCart,
   decreaseQuantity,
   increaseQuantity,
-  clearCart,
+  clearCart
 } from "../../../redux/cart/cartSlice";
+import { useForm } from "react-hook-form"
 
 export default function Checkout() {
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
   const user = useSelector((state) => state.user.currentUser);
-  console.log("User:", user);
-  const navigate = useNavigate();
+console.log('User:', user);
+const navigate = useNavigate();
 
-  const validationSchema = Yup.object({
-    street: Yup.string().required("Street is required"),
-    city: Yup.string().required("City is required"),
-    state: Yup.string().required("State is required"),
-    zip: Yup.string()
-      .required("Zip is required")
-      .matches(/^\d{4}$/, "Zip must be exactly 4 numbers"),
-    recievername: Yup.string().required("Receiver name is required"),
-  });
 
   const [shippingAddress, setShippingAddress] = useState({
     street: "",
     city: "",
     state: "",
     zip: "",
-    recievername: "",
+    recievername:"",
   });
 
   const [paymentMethod, setPaymentMethod] = useState();
   const [deliveryOption, setDeliveryOption] = useState();
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -51,7 +42,7 @@ export default function Checkout() {
     dispatch(removeFromCart({ _id: productId }));
     if (cart.length === 1) {
       // Navigate to /cart if the cart is empty
-      navigate("/cart");
+      navigate('/cart');
     }
   };
 
@@ -98,7 +89,7 @@ export default function Checkout() {
       // await dispatch(createOrder(response.data));
 
       console.log("Order placed successfully!");
-      navigate("/sucess");
+      navigate('/sucess')
       dispatch(clearCart());
 
       // Redirect to success page or show success message
@@ -120,18 +111,8 @@ export default function Checkout() {
             </header>
 
             <div className="mt-8">
-              <Formik
-                initialValues={{
-                  street: "",
-                  city: "",
-                  state: "",
-                  zip: "",
-                  recievername: "",
-                }}
-                validationSchema={validationSchema}
-                onSubmit={handleCheckout}
-              >
-                <Form>
+              <form className="mt-8">
+                <form className="mt-8">
                   <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
                     <div>
                       <label
@@ -140,19 +121,14 @@ export default function Checkout() {
                       >
                         Street Address
                       </label>
-                      <Field
+                      <input
                         type="text"
                         id="street"
                         name="street"
                         onChange={handleInputChange}
                         value={shippingAddress.street}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      />
-
-                      <ErrorMessage
-                        name="street"
-                        component="div"
-                        className="text-red-500"
+                        required
+                        className="mt-1 p-2 w-full border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                       />
                     </div>
 
@@ -163,19 +139,14 @@ export default function Checkout() {
                       >
                         City
                       </label>
-                      <Field
+                      <input
                         type="text"
                         id="city"
                         name="city"
                         onChange={handleInputChange}
                         value={shippingAddress.city}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        
-                      />
-                      <ErrorMessage
-                        name="city"
-                        component="div"
-                        className="text-red-500"
+                        required
+                        className="mt-1 p-2 w-full border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                       />
                     </div>
 
@@ -186,19 +157,14 @@ export default function Checkout() {
                       >
                         State
                       </label>
-                      <Field
+                      <input
                         type="text"
                         id="state"
                         name="state"
                         onChange={handleInputChange}
                         value={shippingAddress.state}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-
-                      />
-                      <ErrorMessage
-                        name="state"
-                        component="div"
-                        className="text-red-500"
+                        required
+                        className="mt-1 p-2 w-full border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                       />
                     </div>
 
@@ -209,19 +175,14 @@ export default function Checkout() {
                       >
                         ZIP Code
                       </label>
-                      <Field
+                      <input
                         type="text"
                         id="zip"
                         name="zip"
                         onChange={handleInputChange}
                         value={shippingAddress.zip}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-
-                      />
-                      <ErrorMessage
-                        name="zip"
-                        component="div"
-                        className="text-red-500"
+                        required
+                        className="mt-1 p-2 w-full border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                       />
                     </div>
                     <div>
@@ -231,19 +192,14 @@ export default function Checkout() {
                       >
                         Reciver name:
                       </label>
-                      <Field
+                      <input
                         type="text"
                         id="recievername"
                         name="recievername"
                         onChange={handleInputChange}
                         value={shippingAddress.recievername}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-
-                      />
-                      <ErrorMessage
-                        name="recievername"
-                        component="div"
-                        className="text-red-500"
+                        required
+                        className="mt-1 p-2 w-full border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                       />
                     </div>
 
@@ -259,13 +215,13 @@ export default function Checkout() {
                         name="deliveryOption"
                         onChange={(e) => setDeliveryOption(e.target.value)}
                         value={deliveryOption}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-
+                        className="mt-1 p-2 w-full border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                       >
                         <option value="Delivery">Delivery</option>
                         <option value="Pickup">Pickup</option>
                       </select>
                     </div>
+                
 
                     <div>
                       <label
@@ -279,8 +235,7 @@ export default function Checkout() {
                         name="paymentMethod"
                         onChange={(e) => setPaymentMethod(e.target.value)}
                         value={paymentMethod}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-
+                        className="mt-1 p-2 w-full border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                       >
                         <option value="COD">COD</option>
                         <option value="Online Payment">Online Payment</option>
@@ -290,14 +245,15 @@ export default function Checkout() {
 
                   <div className="mt-8">
                     <button
-                      type="submit"
+                      type="button"
+                      onClick={handleCheckout}
                       className="w-full bg-gray-700 text-white py-3 px-4 rounded-md hover:bg-gray-600 focus:outline-none focus:ring focus:border-blue-300"
                     >
                       Place Order
                     </button>
                   </div>
-                </Form>
-              </Formik>
+                </form>
+              </form>
             </div>
 
             <div className="mt-8">
@@ -325,31 +281,31 @@ export default function Checkout() {
                         </div>
                       </div>
                       <div>
-                        <button
-                          type="button"
-                          onClick={() => handleDecreaseQuantity(item)}
-                          className="h-8 px-2 border border-r-0 border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 focus:outline-none"
-                        >
-                          -
-                        </button>
+                      <button
+                              type="button"
+                              onClick={() => handleDecreaseQuantity(item)}
+                              className="h-8 px-2 border border-r-0 border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 focus:outline-none"
+                            >
+                              -
+                            </button>
 
-                        <input
-                          type="number"
-                          min="1"
-                          value={item.quantity}
-                          id={`Qty-${item._id}`}
-                          className="h-8 w-12 rounded border-gray-200 bg-gray-50 p-0 text-center text-xs text-gray-600 [-moz-appearance:_textfield] focus:outline-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
-                          readOnly
-                        />
+                            <input
+                              type="number"
+                              min="1"
+                              value={item.quantity}
+                              id={`Qty-${item._id}`}
+                              className="h-8 w-12 rounded border-gray-200 bg-gray-50 p-0 text-center text-xs text-gray-600 [-moz-appearance:_textfield] focus:outline-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+                              readOnly
+                            />
 
-                        <button
-                          type="button"
-                          onClick={() => handleIncreaseQuantity(item)}
-                          className="m-5 p-5 h-8 px-2 border border-l-0 border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 focus:outline-none"
-                        >
-                          +
-                        </button>
-                        <button
+                            <button
+                              type="button"
+                              onClick={() => handleIncreaseQuantity(item)}
+                              className="m-5 p-5 h-8 px-2 border border-l-0 border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 focus:outline-none"
+                            >
+                              +
+                            </button>
+                            <button
                           className="text-gray-600 transition hover:text-red-600"
                           onClick={() => handleRemoveFromCart(item._id)}
                         >
@@ -371,6 +327,7 @@ export default function Checkout() {
                           </svg>
                         </button>
                       </div>
+                      
                     </li>
                   ))}
                 </ul>
