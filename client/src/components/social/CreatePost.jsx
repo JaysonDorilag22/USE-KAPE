@@ -10,6 +10,8 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { CiImageOn } from "react-icons/ci";
 import axios from 'axios';
+import { Formik, Field, ErrorMessage, Form } from 'formik';
+import * as Yup from 'yup';
 
 export default function CreatePost() {
   const navigate = useNavigate();
@@ -26,6 +28,10 @@ export default function CreatePost() {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isExpanded, setExpanded] = useState(false);
+
+  const validationSchema = Yup.object({
+    description: Yup.string().required('Description is required'),
+  });
 
 
   const handleImageSubmit = (e) => {
@@ -144,19 +150,25 @@ export default function CreatePost() {
             What's on your mind?
           </p>
         </div>
-        <form
-          onSubmit={handleSubmit}
+        <Formik
+              initialValues={{ description: ''}}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+            >
+        <Form
+          // onSubmit={handleSubmit}
           className={`flex flex-col gap-4 ${isExpanded ? "" : "hidden"}`}
         >
-          <textarea
+          <Field
             type="text"
             placeholder="What on your mind?"
             className="border p-3 rounded-lg"
             id="description"
-            required
             onChange={handleChange}
             value={formData.description}
           />
+          <ErrorMessage name="description" component="div" className="text-red-500" />
+
           <p className="font-semibold">
             Add to Your Post
             <span className="font-normal text-gray-600 ml-2">
@@ -215,7 +227,8 @@ export default function CreatePost() {
             {loading ? "Creating..." : "Post"}
           </button>
           {error && <p className="text-red-700 text-sm">{error}</p>}
-        </form>
+        </Form>
+        </Formik>
       </div>
     </main>
   );

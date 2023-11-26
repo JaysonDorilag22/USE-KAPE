@@ -99,6 +99,14 @@ export default function OrderDetails() {
 
             <div className="mb-4">
               <label className="block text-gray-600 font-bold mb-2">
+                Delivery Option:
+                <span className="text-red-500">*</span>
+              </label>
+              <p>{order.deliveryOption}</p>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-gray-600 font-bold mb-2">
                 Payment Method:
                 <span className="text-red-500">*</span>
               </label>

@@ -10,7 +10,7 @@ import puppeteer from 'puppeteer';
 
 export const createOrder = async (req, res, next) => {
   try {
-    const { userId, items, totalAmount, shippingAddress, paymentMethod } = req.body;
+    const { userId, items, totalAmount, shippingAddress, deliveryOption, paymentMethod } = req.body;
 
     // Check if the user exists
     const user = await User.findById(userId);
@@ -33,6 +33,7 @@ export const createOrder = async (req, res, next) => {
       items,
       totalAmount,
       shippingAddress,
+      deliveryOption,
       paymentMethod,
     });
 

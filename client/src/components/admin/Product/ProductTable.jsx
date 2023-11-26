@@ -14,12 +14,16 @@ export default function ProductTable() {
   const [itemsPerPageOptions, setItemsPerPageOptions] = useState([5, 10, 15]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [fetchTrigger, setFetchTrigger] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get("/api/product/products");
-        setProducts(response.data);
+        const sortedProducts = response.data.sort((a, b) => {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        setProducts(sortedProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
@@ -28,12 +32,19 @@ export default function ProductTable() {
     };
 
     fetchProducts();
-  }, []);
+  }, [fetchTrigger]);
+
+  const handleCreateProduct = async (newProduct) => {
+    try {
+      await createProduct(newProduct);
+      setFetchTrigger((prev) => !prev);
+    } catch (error) {
+      console.error("Error creating product:", error);
+    }
+  };
 
   const handleDelete = async () => {
-    if (
-      window.confirm("Are you sure you want to delete the selected products?")
-    ) {
+    if (window.confirm("Are you sure you want to delete the selected products?")) {
       try {
         await Promise.all(
           selectedProducts.map(async (productId) => {
@@ -42,9 +53,7 @@ export default function ProductTable() {
         );
 
         setProducts((prevProducts) =>
-        prevProducts.filter(
-            (product) => !selectedProducts.includes(product._id)
-          )
+          prevProducts.filter((product) => !selectedProducts.includes(product._id))
         );
 
         setSelectedProducts([]);
@@ -54,16 +63,18 @@ export default function ProductTable() {
     }
   };
 
-  const handleCheckboxChange = (productId) => {
-    const isSelected = selectedProducts.includes(productId);
-    if (isSelected) {
-      setSelectedProducts((prevSelected) =>
-        prevSelected.filter((id) => id !== productId)
-      );
-    } else {
-      setSelectedProducts((prevSelected) => [...prevSelected, productId]);
-    }
-  };
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  let currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
+
+  if (searchQuery) {
+    currentItems = currentItems.filter(
+      (product) =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
 
   const onPageChange = (newPage) => {
     const totalPages = Math.ceil(products.length / itemsPerPage);
@@ -77,25 +88,11 @@ export default function ProductTable() {
     setCurrentPage(1);
   };
 
-  const totalPages = Math.ceil(products.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  let currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
-
-  if (searchQuery) {
-    currentItems = currentItems.filter(
-      (products) =>
-      products.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      products.description.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }
-
-
   return (
     <div style={{ display: "flex" }}>
       <Sidebar />
       <div className="overflow-x-auto" style={{ flex: 1 }}>
-        <CreateProduct />
+        <CreateProduct onCreateProduct={handleCreateProduct} />
 
         <div className="flex justify-between items-center">
           <div>
@@ -143,6 +140,9 @@ export default function ProductTable() {
               <th>Description</th>
               <th>Price</th>
               <th>Quantity</th>
+              <th>Type</th>
+              <th>Flavor</th>
+              <th>Size</th>
               <th>Images</th>
               <th>Actions</th>
               <th>
@@ -170,6 +170,9 @@ export default function ProductTable() {
                 <td>{product.description}</td>
                 <td>{product.price}</td>
                 <td>{product.quantity}</td>
+                <td>{product.type}</td>
+                <td>{product.flavor}</td>
+                <td>{product.size}</td>
                 <td>
                   <div className="flex">
                     {product.imageUrls.map((url) => (

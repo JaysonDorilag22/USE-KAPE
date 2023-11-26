@@ -22,11 +22,39 @@ export default function UpdateProduct() {
     price: "",
     quantity: "",
     category: "",
+    type: "",
+    flavor: "",
+    size: "",
   });
   const [imageUploadError, setImageUploadError] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const types = [
+    "Espresso",
+    "Americano",
+    "Latte",
+    "Cappuccino",
+    "Macchiato",
+    "Mocha",
+    "Flat White",
+    "Cortado",
+    "Turkish Coffee",
+    "Cold Brew",
+  ];
+  const flavors = [
+    "Regular/Classic",
+    "Vanilla",
+    "Caramel",
+    "Hazelnut",
+    "Chocolate",
+    "Peppermint",
+    "Pumpkin Spice",
+    "Coconut",
+    "Almond",
+    "Irish Cream",
+  ];
+  const sizes = ["small", "medium", "large"];
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -37,11 +65,24 @@ export default function UpdateProduct() {
         console.log(data.message);
         return;
       }
-      setFormData(data);
+
+      // Update form data properties individually
+      setFormData((prevData) => ({
+        ...prevData,
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        quantity: data.quantity,
+        category: data.category,
+        type: data.type,
+        flavor: data.flavor,
+        size: data.size,
+        imageUrls: data.imageUrls,
+      }));
     };
 
     fetchProduct();
-  }, []);
+  }, [params.productId]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -216,8 +257,57 @@ export default function UpdateProduct() {
               </option>
             ))}
           </select>
+          <select
+            className="border p-3 rounded-lg"
+            id="type"
+            required
+            onChange={handleChange}
+            value={formData.type}
+          >
+            <option value="" disabled>
+              Select a type
+            </option>
+            {types.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
         </div>
+
         <div className="flex flex-col flex-1 gap-4">
+          <select
+            className="border p-3 rounded-lg"
+            id="flavor"
+            onChange={handleChange}
+            value={formData.flavor}
+          >
+            <option value="" disabled>
+              Select a flavor
+            </option>
+            {flavors.map((flavor) => (
+              <option key={flavor} value={flavor}>
+                {flavor}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className="border p-3 rounded-lg"
+            id="size"
+            required
+            onChange={handleChange}
+            value={formData.size}
+          >
+            <option value="" disabled>
+              Select a size
+            </option>
+            {sizes.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
           <p className="font-semibold">
             Images:
             <span className="font-normal text-gray-600 ml-2">

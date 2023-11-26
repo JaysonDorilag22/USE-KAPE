@@ -14,20 +14,35 @@ const productSchema = new mongoose.Schema({
     required: true,
   },
   quantity: {
-    type: Number, 
-    default: 0,   
+    type: Number,
+    default: 0,
     required: true,
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category', 
+    ref: 'Category',
     required: true,
   },
   imageUrls: {
     type: Array,
     required: true,
   },
-});
+  type: {
+    type: String,
+    required: true,
+  },
+  flavor: {
+    type: String,
+    required: true,
+  },
+  size: {
+    type: String,
+    enum: ['small', 'medium', 'large'],
+    required: true,
+  },
+},
+{ timestamps: true }
+);
 
 const Product = mongoose.model('Product', productSchema);
 

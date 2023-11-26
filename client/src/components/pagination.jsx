@@ -44,7 +44,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       <span className="h-4 w-px bg-white/25"></span>
 
       <a
-        href="#"
         onClick={() => onPageChange(currentPage + 1)}
         className={`inline-flex h-8 w-8 items-center justify-center rtl:rotate-180 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
         disabled={currentPage === totalPages}

@@ -10,6 +10,8 @@ import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { CiImageOn } from "react-icons/ci";
 import axios from "axios";
+import { Formik, Field, ErrorMessage, Form } from 'formik';
+import * as Yup from 'yup';
 
 export default function EditPost() {
   const navigate = useNavigate();
@@ -21,6 +23,11 @@ export default function EditPost() {
     imageUrls: [], // You may need to fetch existing image URLs for the post
     description: "",
   });
+
+  const validationSchema = Yup.object({
+    description: Yup.string().required('Description is required'),
+  });
+  
   const [imageUploadError, setImageUploadError] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
@@ -144,19 +151,24 @@ export default function EditPost() {
     <main className="p-3 max-w-4xl mx-auto">
       <div className="bg-white p-4 rounded-lg shadow">
         <h1 className="text-2xl font-semibold mb-4">Edit Post</h1>
-        <form
-          onSubmit={handleSubmit}
+        <Formik
+              initialValues={{ description: ''}}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+            >
+        <Form
+          // onSubmit={handleSubmit}
           className={`flex flex-col gap-4 ${isExpanded ? "" : "hidden"}`}
         >
-          <textarea
+          <Field
             type="text"
             placeholder="What's on your mind?"
             className="border p-3 rounded-lg"
             id="description"
-            required
             onChange={handleChange}
             value={formData.description}
           />
+          <ErrorMessage name="description" component="div" className="text-red-500" />
           <p className="font-semibold">
             Add to Your Post
             <span className="font-normal text-gray-600 ml-2">
@@ -217,7 +229,8 @@ export default function EditPost() {
             {loading ? "Updating..." : "Update Post"}
           </button>
           {error && <p className="text-red-700 text-sm">{error}</p>}
-        </form>
+        </Form>
+        </Formik>
       </div>
     </main>
   );

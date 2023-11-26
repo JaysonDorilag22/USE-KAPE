@@ -12,28 +12,23 @@ export const createProduct = async (req, res, next) => {
  }
 };
 
-export const getProducts = async (req, res) => {
+export const getProducts = async (req, res, next) => {
   try {
-    const limit = parseInt(req.query.limit) || 9;
-    const startIndex = parseInt(req.query.startIndex) || 0;
-
     let searchTerm = req.query.searchTerm || '';
-
     const sort = req.query.sort || 'createdAt';
     const order = req.query.order || 'desc';
 
     const products = await Product.find({
       name: { $regex: searchTerm, $options: 'i' },
     })
-      .sort({ [sort]: order })
-      .limit(limit)
-      .skip(startIndex);
+      .sort({ [sort]: order });
 
     return res.status(200).json(products);
   } catch (error) {
     next(error);
   }
 };
+
 
 export const getProduct = async (req, res, next) => {
   try {

@@ -26,7 +26,9 @@ const navigate = useNavigate();
     recievername:"",
   });
 
-  const [paymentMethod, setPaymentMethod] = useState("Credit Card");
+  const [paymentMethod, setPaymentMethod] = useState();
+  const [deliveryOption, setDeliveryOption] = useState();
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -77,6 +79,7 @@ const navigate = useNavigate();
           0
         ),
         shippingAddress,
+        deliveryOption,
         paymentMethod,
       };
 
@@ -187,7 +190,7 @@ const navigate = useNavigate();
                         htmlFor="zip"
                         className="block text-sm font-medium text-gray-700"
                       >
-                        Name:
+                        Reciver name:
                       </label>
                       <input
                         type="text"
@@ -199,6 +202,26 @@ const navigate = useNavigate();
                         className="mt-1 p-2 w-full border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                       />
                     </div>
+
+                    <div>
+                      <label
+                        htmlFor="paymentMethod"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Delivery Option
+                      </label>
+                      <select
+                        id="deliveryOption"
+                        name="deliveryOption"
+                        onChange={(e) => setDeliveryOption(e.target.value)}
+                        value={deliveryOption}
+                        className="mt-1 p-2 w-full border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                      >
+                        <option value="Delivery">Delivery</option>
+                        <option value="Pickup">Pickup</option>
+                      </select>
+                    </div>
+                
 
                     <div>
                       <label
