@@ -1,4 +1,4 @@
-// controllers/orderController.js
+
 import Order from "../models/order.model.js";
 import User from "../models/user.model.js";
 import Product from "../models/product.model.js";
@@ -73,17 +73,21 @@ export const updateOrderStatus = async (req, res, next) => {
       return res.status(404).json({ error: "Order not found" });
     }
 
+    const oldStatus = order.status;
+
     order.status = newStatus;
     await order.save();
 
     const subject = "Order Status Update";
     const content = `
       <p>Hello ${order.user.username},</p>
-      <p>Your order (ID: ${order._id}) status has been updated to ${newStatus}.</p>
+      <p>Your order (ID: ${order._id}) status has been updated from ${oldStatus} to ${newStatus}.</p>
       <p>Thank you for shopping with us!</p>
     `;
 
-    await sendOrderStatusUpdateEmail(order.user, order, newStatus);
+    const updatedPdfBuffer = await generateUpdatedOrderDetailsPDF(order);
+    
+    await sendOrderStatusUpdateEmail(order.user, order, newStatus, updatedPdfBuffer);
 
     res.status(200).json({ message: "Order status updated successfully", order });
   } catch (error) {
@@ -91,6 +95,7 @@ export const updateOrderStatus = async (req, res, next) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 export const cancelOrder = async (req, res, next) => {
   try {

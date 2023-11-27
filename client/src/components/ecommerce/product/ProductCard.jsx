@@ -1,9 +1,37 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { CiShoppingCart } from "react-icons/ci";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../../redux/cart/cartSlice";
+
+const types = [
+  "Espresso",
+  "Americano",
+  "Latte",
+  "Cappuccino",
+  "Macchiato",
+  "Mocha",
+  "Flat White",
+  "Cortado",
+  "Turkish Coffee",
+  "Cold Brew",
+];
+
+const flavors = [
+  "Regular/Classic",
+  "Vanilla",
+  "Caramel",
+  "Hazelnut",
+  "Chocolate",
+  "Peppermint",
+  "Pumpkin Spice",
+  "Coconut",
+  "Almond",
+  "Irish Cream",
+];
+
+const sizes = ["small", "medium", "large"];
 
 export default function ProductCard() {
   const [products, setProducts] = useState([]);
@@ -11,21 +39,18 @@ export default function ProductCard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const cart = useSelector((state) => state.cart);
-  const [sortBy, setSortBy] = useState("");
-  // Update the `useEffect` that fetches products to apply sorting
+  const [sortByPrice, setSortByPrice] = useState("");
+  const [sortByType, setSortByType] = useState("");
+  const [sortByFlavor, setSortByFlavor] = useState("");
+  const [selectedSizes, setSelectedSizes] = useState([]);
+  const [initialProducts, setInitialProducts] = useState([]);
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get("/api/product/products");
-        let sortedProducts = response.data;
-
-        if (sortBy === "price-HIGH-LOW") {
-          sortedProducts = sortedProducts.sort((a, b) => b.price - a.price);
-        } else if (sortBy === "price-LOW-HIGH") {
-          sortedProducts = sortedProducts.sort((a, b) => a.price - b.price);
-        }
-
-        setProducts(sortedProducts);
+        setProducts(response.data);
+        setInitialProducts(response.data); // Set initialProducts here
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
@@ -34,25 +59,59 @@ export default function ProductCard() {
     };
 
     fetchProducts();
-  }, [sortBy]);
+  }, []);
 
   useEffect(() => {
-    // Update local storage whenever cart changes
+
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // Corrected handleAddToCart function
   const handleAddToCart = (product) => {
-    // Pass the entire product object to addToCart action
     dispatch(addToCart(product));
     console.log("Updated Cart:", cart);
   };
 
-  // if (loading) {
-  //   return <div className="flex justify-center items-center h-16">
-  //   <span className="loading loading-spinner loading-lg"></span>
-  // </div>;
-  // }
+  const handleSizeChange = (size) => {
+    setSelectedSizes((prevSizes) =>
+      prevSizes.includes(size)
+        ? prevSizes.filter((prevSize) => prevSize !== size)
+        : [...prevSizes, size]
+    );
+  };
+
+  useEffect(() => {
+    const filterProducts = () => {
+      let filteredProducts = initialProducts;
+
+      if (sortByPrice === "price-HIGH-LOW") {
+        filteredProducts = filteredProducts.sort((a, b) => b.price - a.price);
+      } else if (sortByPrice === "price-LOW-HIGH") {
+        filteredProducts = filteredProducts.sort((a, b) => a.price - b.price);
+      }
+
+      if (sortByType) {
+        filteredProducts = filteredProducts.filter(
+          (product) => product.type === sortByType
+        );
+      }
+
+      if (sortByFlavor) {
+        filteredProducts = filteredProducts.filter(
+          (product) => product.flavor === sortByFlavor
+        );
+      }
+
+      if (selectedSizes.length > 0) {
+        filteredProducts = filteredProducts.filter((product) =>
+          selectedSizes.includes(product.size)
+        );
+      }
+
+      setProducts(filteredProducts);
+    };
+
+    filterProducts();
+  }, [sortByPrice, sortByType, sortByFlavor, selectedSizes, initialProducts]);
 
   return (
     <section>
@@ -70,31 +129,79 @@ export default function ProductCard() {
 
         <div className="mt-8 flex items-center justify-between">
           <div className="flex rounded border border-gray-100">
-            <button className="inline-flex h-10 w-10 items-center justify-center border-e text-gray-600 transition hover:bg-gray-50 hover:text-gray-700">
-              {/* Your SVG for the first button */}
-            </button>
+            <div className="relative mr-4">
+              <label htmlFor="sortByPrice" className="sr-only">
+                Sort by Price
+              </label>
+              <select
+                id="sortByPrice"
+                className="h-10 rounded border-gray-300 text-sm"
+                value={sortByPrice}
+                onChange={(e) => setSortByPrice(e.target.value)}
+              >
+                <option value="">Sort By Price</option>
+                <option value="price-HIGH-LOW">Price, High to Low</option>
+                <option value="price-LOW-HIGH">Price, Low to High</option>
+              </select>
+            </div>
 
-            <button className="inline-flex h-10 w-10 items-center justify-center text-gray-600 transition hover:bg-gray-50 hover:text-gray-700">
-              {/* Your SVG for the second button */}
-            </button>
+            <div className="relative mr-4">
+              <label htmlFor="sortByType" className="sr-only">
+                Sort by Type
+              </label>
+              <select
+                id="sortByType"
+                className="h-10 rounded border-gray-300 text-sm"
+                value={sortByType}
+                onChange={(e) => setSortByType(e.target.value)}
+              >
+                <option value="">Sort By Type</option>
+                {types.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="relative">
+              <label htmlFor="sortByFlavor" className="sr-only">
+                Sort by Flavor
+              </label>
+              <select
+                id="sortByFlavor"
+                className="h-10 rounded border-gray-300 text-sm"
+                value={sortByFlavor}
+                onChange={(e) => setSortByFlavor(e.target.value)}
+              >
+                <option value="">Sort By Flavor</option>
+                {flavors.map((flavor) => (
+                  <option key={flavor} value={flavor}>
+                    {flavor}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>
-            <label htmlFor="SortBy" className="sr-only">
-              SortBy
-            </label>
-            <select
-              id="SortBy"
-              className="h-10 rounded border-gray-300 text-sm"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="">Sort By</option>
-              <option value="price-HIGH-LOW">Price, High to Low</option>
-              <option value="price-LOW-HIGH">Price, Low to High</option>
-            </select>
+            <div className="flex items-center">
+              {sizes.map((size) => (
+                <div key={size} className="mr-4">
+                  <input
+                    type="checkbox"
+                    id={`size-${size}`}
+                    className="mr-2"
+                    checked={selectedSizes.includes(size)}
+                    onChange={() => handleSizeChange(size)}
+                  />
+                  <label htmlFor={`size-${size}`}>{size}</label>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+
         <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {products.map((product) => (
             <li key={product._id}>

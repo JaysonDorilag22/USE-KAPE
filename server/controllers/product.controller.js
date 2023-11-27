@@ -42,6 +42,19 @@ export const getProduct = async (req, res, next) => {
   }
 };
 
+export const getProductsByCategory = async (req, res, next) => {
+  try {
+    const categoryId = req.params.categoryId;
+
+    const products = await Product.find({ category: categoryId })
+      .populate('category', 'name'); 
+
+    return res.status(200).json(products);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateProduct = async (req, res, next) => {
   const product = await Product.findById(req.params.id);
   if (!product) {

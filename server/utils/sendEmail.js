@@ -1,7 +1,5 @@
-// controllers/emailController.js
 import nodemailer from "nodemailer";
 
-// Create a nodemailer transporter
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: process.env.SMTP_PORT,
@@ -31,7 +29,7 @@ export const sendOrderConfirmationEmail = async (user, order, pdfBuffer) => {
     console.log("Order confirmation email sent successfully");
   } catch (error) {
     console.error("Error sending order confirmation email:", error);
-    // Handle error, you might want to throw an error or return a status indicating failure
+   
   }
 };
 

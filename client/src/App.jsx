@@ -19,12 +19,16 @@ import OrderDetails from "./components/ecommerce/OrderDetails";
 import Footer from "./components/Footer";
 import NewPassword from "./components/user/NewPassword";
 import CategoryList from "./components/ecommerce/Category/CategoryCard";
+import CategoryProducts from "./components/ecommerce/Product/CategoryProducts";
 import Cart from "./components/ecommerce/Cart/Cart";
 import Checkout from "./components/ecommerce/Cart/Checkout";
 import OrderSucess from "./components/ecommerce/Cart/OrderSucess";
 import PagenotFound from "./pages/PagenotFound";
 import Feed from "./components/social/Feed";
 import EditPost from "./components/social/EditPost";
+import ProductDetails from "./components/ecommerce/Product/ProductDetails";
+
+
 // Admin pages
 import AdminPanel from "./components/admin/AdminPanel";
 import CategoryTable from "./components/admin/Category/CategoryTable";
@@ -35,7 +39,6 @@ import OrderTable from "./components/admin/Order/OrderTable";
 import PostTable from "./components/admin/Post/PostTable";
 import AdminOrderDetails from "./components/admin/Order/AdminOrderDetails";
 
-import ProductDetails from "./components/ecommerce/Product/ProductDetails";
 
 
 const AdminRoutesWrapper = ({ element }) => {
@@ -65,6 +68,7 @@ const App = () => {
           <Route path="/order-details/:orderId" element={<OrderDetails />} />
           <Route path="/feed" element={<Feed />} />
           <Route path="/edit-post/:postId" element={<EditPost />} />
+          <Route path="/category-product/:categoryId" element={<CategoryProducts />} />
 
           
           <Route path="/cart" element={<Cart />} />

@@ -5,18 +5,20 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../../redux/cart/cartSlice";
 import "../../../loader.css";
+
 export default function ProductDetails() {
-  const [product, setProduct] = useState(null); // Change to a single product instead of an array
+  const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const { productId } = useParams();
   const cart = useSelector((state) => state.cart);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(`/api/product/get/${productId}`);
-        setProduct(response.data); // Assuming your data is an object with product details
+        setProduct(response.data);
       } catch (error) {
         console.error("Error fetching product:", error);
       } finally {
@@ -33,25 +35,19 @@ export default function ProductDetails() {
   }, [cart]);
 
   const handleAddToCart = () => {
-    dispatch(addToCart(product));
+    dispatch(addToCart({ ...product, quantity }));
     console.log("Updated Cart:", cart);
   };
+  
 
   if (loading) {
     return (
       <div className="hourglassBackground">
-        <div className="hourglassContainer">
-          <div className="hourglassCurves"></div>
-          <div className="hourglassCapTop"></div>
-          <div className="hourglassGlassTop"></div>
-          <div className="hourglassSand"></div>
-          <div className="hourglassSandStream"></div>
-          <div className="hourglassCapBottom"></div>
-          <div className="hourglassGlass"></div>
-        </div>
+        {/* ... (loading spinner code) */}
       </div>
     );
   }
+
   return (
     <section>
       <div className="max-w-screen-xl px-4 py-8 mx-auto sm:py-12 sm:px-6 lg:px-8">
@@ -62,7 +58,6 @@ export default function ProductDetails() {
                 <h2 className="text-xl font-bold text-gray-900 sm:text-3xl">
                   {product.name}
                 </h2>
-
                 <p className="mt-4 text-gray-500">{product.description}</p>
               </header>
               <p className="mt-5 mb-5 text-sm text-gray-700">
@@ -70,15 +65,15 @@ export default function ProductDetails() {
               </p>
 
               <div>
-                <label for="Quantity" class="sr-only">
-                  {" "}
-                  Quantity{" "}
+                <label htmlFor="Quantity" className="sr-only">
+                  Quantity
                 </label>
 
-                <div class="flex items-center gap-1">
+                <div className="flex items-center gap-1">
                   <button
                     type="button"
-                    class="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
+                    className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   >
                     &minus;
                   </button>
@@ -86,22 +81,29 @@ export default function ProductDetails() {
                   <input
                     type="number"
                     id="Quantity"
-                    value="1"
-                    class="h-10 w-16 rounded border-gray-200 text-center [-moz-appearance:_textfield] sm:text-sm [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                    value={quantity}
+                    onChange={(e) =>
+                      setQuantity(Math.max(1, parseInt(e.target.value, 10)))
+                    }
+                    className="h-10 w-16 rounded border-gray-200 text-center [-moz-appearance:_textfield] sm:text-sm [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
                   />
 
                   <button
                     type="button"
-                    class="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
+                    className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
+                    onClick={() => setQuantity(quantity + 1)}
                   >
                     &#43;
                   </button>
                 </div>
               </div>
 
-              <a className="inline-block px-12 py-3 mt-8 text-sm font-medium text-white transition bg-gray-900 border border-gray-900 rounded hover:shadow focus:outline-none focus:ring">
+              <button
+                className="inline-block px-12 py-3 mt-8 text-sm font-medium text-white transition bg-gray-900 border border-gray-900 rounded hover:shadow focus:outline-none focus:ring"
+                onClick={handleAddToCart}
+              >
                 Add to cart
-              </a>
+              </button>
             </div>
           </div>
 

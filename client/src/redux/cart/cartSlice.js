@@ -9,9 +9,10 @@ const cartSlice = createSlice({
       const productInCart = state.find(item => item._id === action.payload._id);
 
       if (productInCart) {
-        productInCart.quantity += 1;
+        // If the payload contains a specific quantity, use that; otherwise, default to adding 1
+        productInCart.quantity += action.payload.quantity || 1;
       } else {
-        state.push({ ...action.payload, quantity: 1 });
+        state.push({ ...action.payload, quantity: action.payload.quantity || 1 });
       }
     },
     removeFromCart: (state, action) => {

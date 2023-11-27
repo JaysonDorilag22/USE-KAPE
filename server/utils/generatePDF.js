@@ -1,6 +1,5 @@
 import puppeteer from "puppeteer";
 
-
 export const generateOrderDetailsPDF = async (order) => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
