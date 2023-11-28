@@ -119,6 +119,13 @@ export default function Header() {
                     Profile
                   </Link>
                 </li>
+                {currentUser.role === "Admin" && (
+                  <li>
+                    <Link to="/dashboard" className="justify-between">
+                      Dashboard
+                    </Link>
+                  </li>
+                )}
                 <li>
                   <Link to="/feed" className="justify-between">
                     Social

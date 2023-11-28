@@ -4,6 +4,8 @@ import { CiShoppingCart } from "react-icons/ci";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../../redux/cart/cartSlice";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const types = [
   "Espresso",
@@ -44,13 +46,22 @@ export default function ProductCard() {
   const [sortByFlavor, setSortByFlavor] = useState("");
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [initialProducts, setInitialProducts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("/api/product/products");
-        setProducts(response.data);
-        setInitialProducts(response.data); // Set initialProducts here
+        const response = await axios.get(`/api/product/products?page=${page}&limit=8`);
+        const newProducts = response.data;
+
+        if (newProducts.length === 0) {
+          setHasMore(false);
+          return;
+        }
+
+        setProducts((prevProducts) => [...prevProducts, ...newProducts]);
+        setInitialProducts((prevProducts) => [...prevProducts, ...newProducts]);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
@@ -59,16 +70,18 @@ export default function ProductCard() {
     };
 
     fetchProducts();
-  }, []);
+  }, [page]);
 
   useEffect(() => {
-
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
   const handleAddToCart = (product) => {
-    dispatch(addToCart(product));
-    console.log("Updated Cart:", cart);
+    if (product.quantity <= 0) {
+      toast.error("This item is currently out of stock.");
+      return;
+    }
+    dispatch(addToCart({ ...product, quantity: 1 }));
   };
 
   const handleSizeChange = (size) => {
@@ -77,6 +90,10 @@ export default function ProductCard() {
         ? prevSizes.filter((prevSize) => prevSize !== size)
         : [...prevSizes, size]
     );
+  };
+
+  const handleLoadMore = () => {
+    setPage((prevPage) => prevPage + 1);
   };
 
   useEffect(() => {
@@ -241,7 +258,21 @@ export default function ProductCard() {
             </li>
           ))}
         </ul>
+
+        {hasMore && (
+          <div className="mt-8 flex justify-center">
+            <button
+              className="bg-slate-500 text-white px-4 py-2 rounded"
+              onClick={handleLoadMore}
+              disabled={loading}
+            >
+              {loading ? "Loading..." : "Load More"}
+            </button>
+          </div>
+        )}
       </div>
+      <ToastContainer />
     </section>
   );
-}
+};
+

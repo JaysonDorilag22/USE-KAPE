@@ -6,12 +6,12 @@ import { createProduct, deleteProduct, getProduct, getProducts, getProductsByCat
 
 const router = express.Router();
 
-router.post('/create', createProduct); 
+router.post('/create',authenticateUser, isAdmin, createProduct); 
 router.get('/products', getProducts);
 router.get('/get/:id', getProduct);
 router.get('/get/byCategory/:categoryId', getProductsByCategory);
-router.post('/update/:id', updateProduct);
-router.delete('/delete/:id', deleteProduct);
+router.post('/update/:id',authenticateUser, isAdmin, updateProduct);
+router.delete('/delete/:id',authenticateUser, isAdmin, deleteProduct);
 
 export default router;
 

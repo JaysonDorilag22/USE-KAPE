@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { useRef, useState, useEffect } from "react";
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Timeline from "../social/Timeline.jsx";
 import {
   getDownloadURL,
@@ -19,6 +19,9 @@ import {
   signOutUserStart,
 } from "../../redux/user/userSlice.js";
 import { useDispatch } from "react-redux";
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Profile() {
   const fileRef = useRef(null);
@@ -55,6 +58,7 @@ export default function Profile() {
       },
       (error) => {
         setFileUploadError(true);
+        toast.error("Error uploading image (image must be less than 2 MB)");
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) =>
@@ -72,54 +76,64 @@ export default function Profile() {
     e.preventDefault();
     try {
       dispatch(updateUserStart());
-      const res = await fetch(`/api/user/update/${currentUser._id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (data.success === false) {
-        dispatch(updateUserFailure(data.message));
+
+      // Using Axios for API call
+      const response = await axios.post(`/api/user/update/${currentUser._id}`, formData);
+
+      if (response.data.success === false) {
+        dispatch(updateUserFailure(response.data.message));
+        toast.error(response.data.message);
         return;
       }
-      dispatch(updateUserSuccess(data));
+
+      dispatch(updateUserSuccess(response.data));
       setUpdateSuccess(true);
+      toast.success("User updated successfully!");
     } catch (error) {
       dispatch(updateUserFailure(error.message));
+      toast.error("An error occurred while updating user.");
     }
   };
 
   const handleDeleteUser = async () => {
     try {
       dispatch(deleteUserStart());
-      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      if (data.success === false) {
-        dispatch(deleteUserFailure(data.message));
+
+      // Using Axios for API call
+      const response = await axios.delete(`/api/user/delete/${currentUser._id}`);
+
+      if (response.data.success === false) {
+        dispatch(deleteUserFailure(response.data.message));
+        toast.error(response.data.message);
         return;
       }
-      dispatch(deleteUserSuccess(data));
+
+      dispatch(deleteUserSuccess(response.data));
+      toast.success("User deleted successfully!");
     } catch (error) {
       dispatch(deleteUserFailure(error.message));
+      toast.error("An error occurred while deleting user.");
     }
   };
 
   const handleSignOut = async () => {
     try {
       dispatch(signOutUserStart());
-      const res = await fetch("/api/auth/signout");
-      const data = await res.json();
-      if (data.success === false) {
-        dispatch(deleteUserFailure(data.message));
+
+      // Using Axios for API call
+      const response = await axios.get("/api/auth/signout");
+
+      if (response.data.success === false) {
+        dispatch(deleteUserFailure(response.data.message));
+        toast.error(response.data.message);
         return;
       }
-      dispatch(deleteUserSuccess(data));
+
+      dispatch(deleteUserSuccess(response.data));
+      toast.success("Signed out successfully!");
     } catch (error) {
-      dispatch(deleteUserFailure(data.message));
+      dispatch(deleteUserFailure(error.message));
+      toast.error("An error occurred while signing out.");
     }
   };
 
@@ -143,7 +157,7 @@ export default function Profile() {
         <p className="text-sm self-center">
           {fileUploadError ? (
             <span className="text-red-700">
-              Error Image upload (image must be less than 2 mb)
+              Error Image upload (image must be less than 2 MB)
             </span>
           ) : filePerc > 0 && filePerc < 100 ? (
             <span className="text-slate-700">{`Uploading ${filePerc}%`}</span>
@@ -158,7 +172,7 @@ export default function Profile() {
           placeholder="username"
           id="username"
           defaultValue={currentUser.username}
-          className="border p-3 rounded-lg id='username"
+          className="border p-3 rounded-lg"
           onChange={handleChange}
         />
         <input
@@ -166,14 +180,14 @@ export default function Profile() {
           placeholder="email"
           id="email"
           defaultValue={currentUser.email}
-          className="border p-3 rounded-lg id='email"
+          className="border p-3 rounded-lg"
           onChange={handleChange}
         />
         <input
           type="password"
           id="password"
           placeholder="password"
-          className="border p-3 rounded-lg id='password"
+          className="border p-3 rounded-lg"
           onChange={handleChange}
         />
         <button
@@ -197,6 +211,7 @@ export default function Profile() {
         {updateSuccess ? "User is updated successfully!" : ""}
       </p>
       <Timeline/>
+      <ToastContainer />
     </div>
   );
 }

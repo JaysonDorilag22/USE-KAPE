@@ -45,7 +45,7 @@ export const createOrder = async (req, res, next) => {
     }
     user.orderHistory.push(order._id);
     await user.save();
-
+    
     for (const item of items) {
       const product = await Product.findById(item.product);
       product.quantity -= item.quantity;
@@ -78,6 +78,12 @@ export const updateOrderStatus = async (req, res, next) => {
     order.status = newStatus;
     await order.save();
 
+    if (newStatus === "Delivered" && order.paymentStatus !== "Paid") {
+      // If the new status is "Delivered" and payment status is not "Paid," update payment status
+      order.paymentStatus = "Paid";
+      await order.save();
+    }
+
     const subject = "Order Status Update";
     const content = `
       <p>Hello ${order.user.username},</p>
@@ -86,7 +92,7 @@ export const updateOrderStatus = async (req, res, next) => {
     `;
 
     const updatedPdfBuffer = await generateUpdatedOrderDetailsPDF(order);
-    
+
     await sendOrderStatusUpdateEmail(order.user, order, newStatus, updatedPdfBuffer);
 
     res.status(200).json({ message: "Order status updated successfully", order });

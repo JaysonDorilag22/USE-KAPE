@@ -38,6 +38,24 @@ export default function UpdateCategory() {
     fetchCategories();
   }, []);
 
+  const validateForm = () => {
+    const errors = {};
+
+    if (!formData.name.trim()) {
+      errors.name = 'Name is required';
+    } else if (formData.name.length < 10) {
+      errors.name = 'Name must be at least 10 characters';
+    } else if (formData.name.length > 62) {
+      errors.name = 'Name must be at most 62 characters';
+    }
+
+    if (!formData.description.trim()) {
+      errors.description = 'Description is required';
+    }
+
+    return errors;
+  };
+
   const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
       setUploading(true);
@@ -107,6 +125,7 @@ export default function UpdateCategory() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errors = validateForm();
     try {
       if (formData.imageUrls.length < 1)
         return setError('You must upload at least one image');
@@ -135,32 +154,41 @@ export default function UpdateCategory() {
 
   return (
     <main className='p-3 max-w-4xl mx-auto'>
-    <h1 className='text-3xl font-semibold text-center my-7'>
-    Update a Category
-    </h1>
-    <form onSubmit={handleSubmit} className='flex flex-col sm:flex-row gap-4'>
-      <div className='flex flex-col gap-4 flex-1'>
-        <input
-          type='text'
-          placeholder='Name'
-          className='border p-3 rounded-lg'
-          id='name'
-          maxLength='62'
-          minLength='10'
-          required
-          onChange={handleChange}
-          value={formData.name}
-        />
-        <textarea
-          type='text'
-          placeholder='Description'
-          className='border p-3 rounded-lg'
-          id='description'
-          required
-          onChange={handleChange}
-          value={formData.description}
-        />
-      </div>
+      <h1 className='text-3xl font-semibold text-center my-7'>
+        Update a Category
+      </h1>
+      <form onSubmit={handleSubmit} className='flex flex-col sm:flex-row gap-4'>
+        <div className='flex flex-col gap-4 flex-1'>
+          <input
+            type='text'
+            placeholder='Name'
+            className='border p-3 rounded-lg'
+            id='name'
+            maxLength='62'
+            minLength='10'
+            required
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            value={formData.name}
+          />
+          {validateForm().name && (
+            <p className='text-red-700 text-sm'>{validateForm().name}</p>
+          )}
+          <textarea
+            placeholder='Description'
+            className='border p-3 rounded-lg'
+            id='description'
+            required
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
+            value={formData.description}
+          />
+          {validateForm().description && (
+            <p className='text-red-700 text-sm'>
+              {validateForm().description}
+            </p>
+          )}
+        </div>
       <div className='flex flex-col flex-1 gap-4'>
         <p className='font-semibold'>
           Images:

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useDispatch } from 'react-redux';
-import { updateStatus } from '../../../redux/cart/orderSlice';
+import { useDispatch } from "react-redux";
+import { updateStatus } from "../../../redux/cart/orderSlice";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AdminOrderDetails() {
   const [order, setOrder] = useState({});
@@ -12,6 +14,8 @@ export default function AdminOrderDetails() {
   const [newStatus, setNewStatus] = useState("");
   const { orderId } = useParams();
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -26,6 +30,7 @@ export default function AdminOrderDetails() {
         console.error(error);
       } finally {
         setLoadingOrder(false);
+        setLoading(false);
       }
     };
 
@@ -49,13 +54,13 @@ export default function AdminOrderDetails() {
 
   const handleStatusChange = async () => {
     try {
-      // Send a request to update the order status
       const response = await axios.put(`/api/order/status/${orderId}`, {
         newStatus: newStatus,
       });
       dispatch(updateStatus({ orderId, newStatus }));
-      console.log("Status sucessfully change")
-
+      toast.success("Status sucessfully change");
+      console.log("Status sucessfully change");
+      navigate('/order-table')
 
       setOrder((prevOrder) => ({ ...prevOrder, status: newStatus }));
     } catch (error) {
@@ -152,7 +157,7 @@ export default function AdminOrderDetails() {
               </tr>
             </thead>
             <tbody>
-            {Array.isArray(order.items) &&
+              {Array.isArray(order.items) &&
                 order.items.map((item) => {
                   const product = products.find(
                     (p) => p._id === item.product._id
@@ -177,7 +182,10 @@ export default function AdminOrderDetails() {
         </form>
       </div>
       <div>
-        <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="status"
+          className="block text-sm font-medium text-gray-700"
+        >
           Status
         </label>
         <select
@@ -192,13 +200,15 @@ export default function AdminOrderDetails() {
           <option value="Delivered">Delivered</option>
         </select>
         <button
+          disabled={loading}
           type="button"
           className="mt-4 bg-blue-500 text-white p-2 rounded-md"
           onClick={handleStatusChange}
         >
-          Update Status
+          {loading ? "Loading..." : "Update"}
         </button>
       </div>
+      <ToastContainer />
     </div>
   );
 }

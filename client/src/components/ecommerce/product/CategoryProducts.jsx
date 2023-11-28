@@ -79,15 +79,12 @@ export default function CategoryProducts() {
         setCategory(categoryResponse.data);
 
         if (page === 1) {
-          // For the first page, set the products directly
           setProducts(productResponse.data);
           setInitialProducts(productResponse.data);
         } else {
-          // For subsequent pages, append the products to the existing list
           setProducts((prevProducts) => [...prevProducts, ...productResponse.data]);
         }
 
-        // If the response has fewer items than expected, it means there are no more items to load
         if (productResponse.data.length < 10) {
           setHasMore(false);
         }
@@ -112,7 +109,6 @@ export default function CategoryProducts() {
         document.documentElement.offsetHeight &&
       hasMore
     ) {
-      // Load more products when the user reaches the bottom of the page
       setPage((prevPage) => prevPage + 1);
     }
   };

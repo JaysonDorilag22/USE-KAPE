@@ -6,9 +6,10 @@ import axios from "axios";
 import OAuth from "../OAuth";
 import { Formik, Field, ErrorMessage, Form } from 'formik';
 import * as Yup from 'yup';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function SignUp() {
-  const [error, setError] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const navigate = useNavigate();
 
@@ -21,29 +22,24 @@ export default function SignUp() {
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
-      const res = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      });
-      const data = await res.json();
-      console.log(data);
-      if (data.success === false) {
+
+      const response = await axios.post('/api/auth/signup', values);
+
+      if (response.data.success === false) {
         setLoading(false);
-        setError(data.message);
+        toast.error(response.data.message); 
         return;
       }
+
       setLoading(false);
-      setError(null);
+      toast.success("Sign-up successful!"); 
       navigate('/sign-in');
     } catch (error) {
       setLoading(false);
-      setError(error.message);
+      toast.error("User already exists. Please choose a different username or email."); 
     }
   };
-
+  
   return (
     <div>
       <div
@@ -123,12 +119,12 @@ export default function SignUp() {
                     </Link>
                   </span>
                 </div>
-                {error && <div className="text-red-500">{error}</div>}
               </Form>
             </Formik>
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

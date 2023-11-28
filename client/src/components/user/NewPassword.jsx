@@ -66,9 +66,8 @@ export default function NewPassword() {
         <div className="hero-content flex-col lg:flex-row-reverse">
           <div className="text-center lg:text-left text-white">
             <h1 className="text-5xl font-bold">
-              Next time kasi wag mo kalimutan
+              Please remember your password
             </h1>
-            <p className="py-6">Delete ko yang account mo eh</p>
           </div>
           <div className="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
             <Formik

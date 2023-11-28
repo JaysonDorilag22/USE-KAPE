@@ -44,7 +44,9 @@ export default function ProductTable() {
   };
 
   const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete the selected products?")) {
+    if (
+      window.confirm("Are you sure you want to delete the selected products?")
+    ) {
       try {
         await Promise.all(
           selectedProducts.map(async (productId) => {
@@ -53,7 +55,9 @@ export default function ProductTable() {
         );
 
         setProducts((prevProducts) =>
-          prevProducts.filter((product) => !selectedProducts.includes(product._id))
+          prevProducts.filter(
+            (product) => !selectedProducts.includes(product._id)
+          )
         );
 
         setSelectedProducts([]);
@@ -75,6 +79,17 @@ export default function ProductTable() {
         product.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }
+
+  const handleCheckboxChange = (productId) => {
+    const isSelected = selectedProducts.includes(productId);
+    if (isSelected) {
+      setSelectedProducts((prevSelected) =>
+        prevSelected.filter((id) => id !== productId)
+      );
+    } else {
+      setSelectedProducts((prevSelected) => [...prevSelected, productId]);
+    }
+  };
 
   const onPageChange = (newPage) => {
     const totalPages = Math.ceil(products.length / itemsPerPage);
@@ -175,14 +190,11 @@ export default function ProductTable() {
                 <td>{product.size}</td>
                 <td>
                   <div className="flex">
-                    {product.imageUrls.map((url) => (
-                      <img
-                        key={url}
-                        src={url}
-                        alt={`product-${product._id}`}
-                        className="h-20 w-20 object-cover m-1"
-                      />
-                    ))}
+                    <img
+                      src={product.imageUrls[0]}
+                      alt={`product-${product._id}`}
+                      className="h-20 w-20 object-cover m-1"
+                    />
                   </div>
                 </td>
                 <td>

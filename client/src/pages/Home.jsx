@@ -9,23 +9,9 @@ import CategoryCards from "../components/ecommerce/Category/CategoryCard";
 import ProductCards from "../components/ecommerce/Product/ProductCard";
 
 export default function Home() {
-  const [loading, setLoading] = useState(true);
-
-  const handleDataFetchComplete = () => {
-    setLoading(false);
-  };
 
   return (
     <div>
-      <ProductCards onDataFetchComplete={handleDataFetchComplete} />
-      <CategoryCards onDataFetchComplete={handleDataFetchComplete} />
-
-      {/* Your loading spinner */}
-      {loading && (
-        <div className="flex justify-center items-center h-16">
-          <span className="loading loading-spinner loading-lg"></span>
-        </div>
-      )}
       <div
         className="hero min-h-screen"
         style={{ backgroundImage: `url(${home})` }}
@@ -76,6 +62,8 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <CategoryCards  />
+      <ProductCards />
     </div>
   );
 }

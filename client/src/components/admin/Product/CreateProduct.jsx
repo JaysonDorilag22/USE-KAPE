@@ -56,8 +56,6 @@ export default function CreateProduct() {
   ];
   const sizes = ["small", "medium", "large"];
 
-  
-
   useEffect(() => {
     const fetchCategories = async () => {
       try {

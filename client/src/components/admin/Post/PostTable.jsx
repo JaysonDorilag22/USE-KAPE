@@ -14,7 +14,7 @@ export default function PostTable() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
-  //get all posts
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -30,7 +30,6 @@ export default function PostTable() {
     fetchPosts();
   }, []);
 
-  //delete posts
   const handleDelete = async () => {
     if (
       window.confirm("Are you sure you want to delete the selected posts?")
@@ -95,7 +94,7 @@ export default function PostTable() {
     <div style={{ display: "flex" }}>
       <Sidebar />
       <div className="overflow-x-auto" style={{ flex: 1 }}>
-        {/* <CreatePost /> */}
+
 
         <div className="flex justify-between items-center">
           <div>

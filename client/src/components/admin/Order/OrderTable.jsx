@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Sidebar from "../../Sidebar";
+import moment from "moment";
+
 export default function OrderTable() {
   const [userOrders, setUserOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
@@ -45,92 +47,102 @@ export default function OrderTable() {
 
   return (
     <div style={{ display: "flex" }}>
-    <Sidebar/>
+      <Sidebar />
 
-    <div className="flex flex-col items-center">
-      <div className="flex space-x-4 mb-4 mt-5">
-        <button onClick={() => handleStatusClick("All")} className="nav-button">
-          All
-        </button>
-        <button
-          onClick={() => handleStatusClick("Processing")}
-          className="nav-button"
-        >
-          Processing
-        </button>
-        <button
-          onClick={() => handleStatusClick("Delivered")}
-          className="nav-button"
-        >
-          Delivered
-        </button>
-        <button
-          onClick={() => handleStatusClick("Cancelled")}
-          className="nav-button"
-        >
-          Cancelled
-        </button>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-          <thead className="ltr:text-left rtl:text-right">
-            <tr>
-              <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Order ID
-              </th>
-              <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Address
-              </th>
-              <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Name
-              </th>
-              <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Total Amount
-              </th>
-              <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Status
-              </th>
-              <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                Payment Method
-              </th>
-              <th className="whitespace-nowrap px-4 py-2">View</th>
-            </tr>
-          </thead>
+      <div className="flex flex-col items-center w-full">
+        <div className="flex space-x-4 mb-4 mt-5">
+          <button
+            onClick={() => handleStatusClick("All")}
+            className="nav-button"
+          >
+            All
+          </button>
+          <button
+            onClick={() => handleStatusClick("Processing")}
+            className="nav-button"
+          >
+            Processing
+          </button>
+          <button
+            onClick={() => handleStatusClick("Delivered")}
+            className="nav-button"
+          >
+            Delivered
+          </button>
+          <button
+            onClick={() => handleStatusClick("Cancelled")}
+            className="nav-button"
+          >
+            Cancelled
+          </button>
+        </div>
 
-          <tbody className="min-w-full divide-y-2 divide-gray-200 text-sm text-center">
-            {filteredOrders.map((order) => (
-              <tr key={order._id}>
-                <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                  {order._id}
-                </td>
-                <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                  {order.shippingAddress.city}
-                </td>
-                <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                  {order.shippingAddress.recievername}
-                </td>
-                <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                  $ {order.totalAmount}
-                </td>
-                <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                  {order.status}
-                </td>
-                <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                  {order.paymentMethod}
-                </td>
-                <td className="whitespace-nowrap px-4 py-2">
-                  <Link to={`/orderdetails/${order._id}`}>
-                    <button className="inline-block rounded bg-slate-600 px-4 py-2 text-xs font-medium text-white hover:bg-slate-700">
-                      View
-                    </button>
-                  </Link>
-                </td>
+        <div className="overflow-x-auto w-full">
+          <table className="table w-full divide-y-2 divide-gray-200 bg-white text-sm">
+            <thead className="ltr:text-left rtl:text-right text-center">
+              <tr>
+                <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                  Order ID
+                </th>
+                <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                  Address
+                </th>
+                <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                  Name
+                </th>
+                <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                  Total Amount
+                </th>
+                <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                  Status
+                </th>
+                <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                  Payment Method
+                </th>
+                <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                  Date
+                </th>
+                <th className="whitespace-nowrap px-4 py-2">View</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody className="min-w-full divide-y-2 divide-gray-200 text-sm text-center">
+              {filteredOrders.map((order) => (
+                <tr key={order._id}>
+                  <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    {order._id}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                    {order.shippingAddress.city}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                    {order.shippingAddress.recievername}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                    $ {order.totalAmount}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                    {order.status}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                    {order.paymentMethod}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                  {moment(order.createdAt).fromNow()}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2">
+                    <Link to={`/orderdetails/${order._id}`}>
+                      <button className="inline-block rounded bg-slate-600 px-4 py-2 text-xs font-medium text-white hover:bg-slate-700">
+                        View
+                      </button>
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
     </div>
   );
 }

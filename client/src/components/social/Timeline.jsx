@@ -13,8 +13,8 @@ export default function Timeline() {
   const [hasMore, setHasMore] = useState(true);
   const [commentInput, setCommentInput] = useState("");
   const loaderRef = useRef();
-  console.log("username", currentUser.username);
-  console.log("username", currentUser._id);
+  // console.log("username", currentUser.username);
+  // console.log("username", currentUser._id);
 
   useEffect(() => {
     loadPosts();

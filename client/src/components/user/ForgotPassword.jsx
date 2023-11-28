@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import signin from "../../assets/images/signin.jpg";
 import { Link, useNavigate } from "react-router-dom";
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [message, setMessage] = useState(null);
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -14,27 +16,24 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
+      const response = await axios.post('/api/auth/forgot-password', {
+        email,
       });
 
-      if (response.ok) {
-        setMessage('Password reset email sent.');
+      if (response.status === 200) {
+        toast.success('Password reset email sent.');
         navigate('/sign-in');
-      } else {
-        const data = await response.json();
-        setError(data.message);
       }
     } catch (error) {
-      setError('An error occurred while processing your request.');
+      if (error.response) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error('An error occurred while processing your request.');
+      }
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div>
@@ -46,8 +45,6 @@ export default function ForgotPassword() {
           </div>
           <div className="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
             <form className="card-body" onSubmit={handleSubmit}>
-              {message && <div className="text-green-600">{message}</div>}
-              {error && <div className="text-red-600">{error}</div>}
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Email</span>
@@ -69,6 +66,7 @@ export default function ForgotPassword() {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

@@ -38,7 +38,7 @@ import UpdateProduct from "./components/admin/Product/UpdateProduct";
 import OrderTable from "./components/admin/Order/OrderTable";
 import PostTable from "./components/admin/Post/PostTable";
 import AdminOrderDetails from "./components/admin/Order/AdminOrderDetails";
-
+import UserTable from "./components/admin/User/UserTable";
 
 
 const AdminRoutesWrapper = ({ element }) => {
@@ -73,7 +73,7 @@ const App = () => {
           
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/sucess" element={<OrderSucess />} />
+          <Route path="/success" element={<OrderSucess />} />
 
           <Route path="/product/:productId" element={<ProductDetails />} />
 
@@ -90,7 +90,7 @@ const App = () => {
           />
           <Route
             path='/update-category/:categoryId'
-            element={<UpdateCategory />}
+            element={<AdminRoutesWrapper element={<UpdateCategory />}/>}
           />
 
           <Route
@@ -99,12 +99,16 @@ const App = () => {
           />
           <Route
             path='/update-product/:productId'
-            element={<UpdateProduct />}
+            element={<AdminRoutesWrapper element={<UpdateProduct />}/>}
           />
 
           <Route
             path="/post-table"
             element={<AdminRoutesWrapper element={<PostTable />} />}
+          />
+          <Route
+            path="/user-table"
+            element={<AdminRoutesWrapper element={<UserTable />} />}
           />
           <Route
             path="/order-table"

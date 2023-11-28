@@ -167,14 +167,11 @@ export default function CategoryTable() {
                 <td>{category.description}</td>
                 <td>
                   <div className="flex">
-                    {category.imageUrls.map((url) => (
-                      <img
-                        key={url}
-                        src={url}
-                        alt={`category-${category._id}`}
-                        className="h-20 w-20 object-cover m-1"
-                      />
-                    ))}
+                  <img
+                      src={category.imageUrls[0]}
+                      alt={`category-${category._id}`}
+                      className="h-20 w-20 object-cover m-1"
+                    />
                   </div>
                 </td>
                 <td>

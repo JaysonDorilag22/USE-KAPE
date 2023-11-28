@@ -7,7 +7,7 @@ import categoryRouter from './routes/category.route.js'
 import productRouter from './routes/product.route.js'
 import orderRouter from './routes/order.route.js'
 import postRouter from './routes/post.route.js'
-
+import path from 'path';
 
 import cloudinary from 'cloudinary';
 // import ProductRouter from './routes/product.route.js';
@@ -29,7 +29,7 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
-
+  const __dirname = path.resolve();
 app.listen(3000, () => {
     console.log('Server is running on port 3000!');
   });
@@ -47,7 +47,11 @@ app.use('/api/product', productRouter);
 app.use('/api/order', orderRouter);
 app.use('/api/post', postRouter);
 
+app.use(express.static(path.join(__dirname, '/client/dist')))
 
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname + 'client','dist','index.html'));
+})
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Internal Server Error';

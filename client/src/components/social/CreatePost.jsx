@@ -97,7 +97,6 @@ export default function CreatePost() {
       setLoading(true);
       setError(false);
 
-      // Change the API endpoint to your post creation endpoint
       const response = await axios.post("/api/post/create", values, {
         headers: {
           "Content-Type": "application/json",

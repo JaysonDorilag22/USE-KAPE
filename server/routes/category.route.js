@@ -10,8 +10,8 @@ const router = express.Router();
 
 router.post('/create', authenticateUser, isAdmin, createCategory);
 router.get('/categories', getCategories);
-router.post('/update/:id', updateCategory);
+router.post('/update/:id',authenticateUser, isAdmin, updateCategory);
 router.get('/get/:id', getCategory);
-router.delete('/delete/:id', deleteCategory);
+router.delete('/delete/:id',authenticateUser, isAdmin, deleteCategory);
 
 export default router;

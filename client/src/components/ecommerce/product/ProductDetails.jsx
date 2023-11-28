@@ -6,10 +6,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../../redux/cart/cartSlice";
 import "../../../loader.css";
 import { FaStar } from "react-icons/fa6";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function ProductDetails() {
   const { currentUser } = useSelector((state) => state.user);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
@@ -17,7 +19,7 @@ export default function ProductDetails() {
   const cart = useSelector((state) => state.cart);
   const [quantity, setQuantity] = useState(1);
   const [reviews, setReviews] = useState([]);
-  const [rating, setRating] = useState(5); 
+  const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState("");
 
   console.log("currentuser:", currentUser._id);
@@ -38,6 +40,7 @@ export default function ProductDetails() {
       try {
         const response = await axios.get(`/api/order/reviews/${productId}`);
         setReviews(response.data.reviews);
+      toast.success("Thank you for reviews nd ratings");
       } catch (error) {
         console.error("Error fetching reviews:", error);
       }
@@ -53,14 +56,30 @@ export default function ProductDetails() {
   }, [cart]);
 
   const handleAddToCart = () => {
+ 
+    if (product.quantity <= 0) {
+
+      toast.error("This item is currently out of stock.");
+      return;
+    }
+
     dispatch(addToCart({ ...product, quantity }));
     console.log("Updated Cart:", cart);
   };
 
+
   if (loading) {
     return (
       <div className="hourglassBackground">
-        {/* ... (loading spinner code) */}
+        <div className="hourglassContainer">
+        <div className="hourglassCurves"></div>
+        <div className="hourglassCapTop"></div>
+        <div className="hourglassGlassTop"></div>
+        <div className="hourglassSand"></div>
+        <div className="hourglassSandStream"></div>
+        <div className="hourglassCapBottom"></div>
+        <div className="hourglassGlass"></div>
+      </div>
       </div>
     );
   }
@@ -83,29 +102,40 @@ export default function ProductDetails() {
       // Clear the input fields
       setRating(5);
       setReviewText("");
-      navigate('/')
+      navigate("/");
     } catch (error) {
       console.error("Error adding review:", error);
     }
   };
 
   return (
-    <section className="py-8">
-      <div className="container mx-auto">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-stretch">
-          <div className="col-span-1 p-6 bg-gray-100 rounded place-content-center sm:p-8">
-            <div className="max-w-md mx-auto text-center lg:text-left">
-              <header>
-                <h2 className="text-xl font-bold text-gray-900 sm:text-3xl">
-                  {product.name}
-                </h2>
-                <p className="mt-4 text-gray-500">{product.description}</p>
-              </header>
-              <p className="mt-5 mb-5 text-sm text-gray-700">
-                Price: $ {product.price}
-              </p>
+    <section>
+      <div className="mx-auto max-w-screen-2xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:h-screen lg:grid-cols-2">
+          <div className="grid gap-4">
+            <div className="grid grid-cols-2 gap-2">
+              {product.imageUrls.slice(0, 4).map((imageUrl, index) => (
+                <div key={index}>
+                  <img
+                    className="h-auto max-w-full rounded-lg"
+                    src={imageUrl}
+                    alt=""
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
 
-              <div>
+          <div className="relative flex items-center bg-gray-100">
+            <span className="hidden lg:absolute lg:inset-y-0 lg:-start-16 lg:block lg:w-16 lg:bg-gray-100"></span>
+
+            <div className="p-8 sm:p-16 lg:p-24">
+              <h2 className="text-2xl font-bold sm:text-3xl">{product.name}</h2>
+
+              <p className="mt-4 text-gray-600">{product.description}</p>
+              <p className="mt-4 text-gray-600">Price: ${product.price}</p>
+
+              <div className="mt-3">
                 <label htmlFor="Quantity" className="sr-only">
                   Quantity
                 </label>
@@ -140,88 +170,81 @@ export default function ProductDetails() {
               </div>
 
               <button
-                className="inline-block px-12 py-3 mt-8 text-sm font-medium text-white transition bg-gray-900 border border-gray-900 rounded hover:shadow focus:outline-none focus:ring"
                 onClick={handleAddToCart}
+                className="mt-8 inline-block rounded border border-slate-600 bg-slate-600 px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-slate-600 focus:outline-none focus:ring active:text-slate-500"
               >
                 Add to cart
               </button>
             </div>
           </div>
-
-          <div className="col-span-2 py-8">
-            <ul className="grid grid-cols-2 gap-4">
-              <li>
-                <a href="#" className="block group">
-                  <img
-                    src={product.imageUrls[0]}
-                    alt=""
-                    className="object-cover w-full rounded aspect-square"
-                  />
-                </a>
-              </li>
-
-              <li>
-                <a href="#" className="block group">
-                  <img
-                    src={product.imageUrls[0]}
-                    alt=""
-                    className="object-cover w-full rounded aspect-square"
-                  />
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
       </div>
-      <div className="container mx-auto mt-8">
+      <hr className="stroke-slate-800"></hr>
+
+      <div className="mx-auto mt-8 p-10">
         <h2 className="text-2xl font-bold mb-4">Product Reviews</h2>
         {reviews.length > 0 ? (
           <ul>
-          {reviews.map((review) => (
-  <li key={review._id}>
-    <p className="flex align-baseline">
-      <FaStar />{" "}
-      {review.rating !== undefined ? review.rating : "N/A"}
-    </p>
-    <p>{review.reviewText || "No review text available"}</p>
-  </li>
-))}
-
+            {reviews.map((review) => (
+              <li key={review._id} className="mb-4">
+                <div className="flex items-baseline mb-2">
+                  <p>{review.user.name}</p>
+                  <FaStar className="text-yellow-500" />{" "}
+                  <p className="ml-1">
+                    {review.rating !== undefined ? review.rating : "N/A"}
+                  </p>
+                </div>
+                <p>{review.reviewText || "No review text available"}</p>
+              </li>
+            ))}
           </ul>
         ) : (
           <p>No reviews yet.</p>
         )}
       </div>
-      <div className="container mx-auto">
+      <hr className="stroke-slate-800"></hr>
+
+      <div className="mx-auto mt-8 p-10">
         <form onSubmit={handleAddReview} className="mt-8">
           <label>
             Rating:
-            <select value={rating} onChange={(e) => setRating(e.target.value)}>
+            <div className="flex items-center">
               {[1, 2, 3, 4, 5].map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
+                <FaStar
+                  key={value}
+                  className={`text-yellow-500 cursor-pointer ${
+                    value <= rating
+                      ? "text-yellow-500 fill-current"
+                      : "text-gray-300 stroke-current"
+                  }`}
+                  onClick={() => setRating(value)}
+                />
               ))}
-            </select>
+            </div>
           </label>
+
           <br />
+          <p>Review:</p>
           <label>
-            Review:
             <textarea
-              className="mt-2 w-full rounded-lg border-gray-200 align-top shadow-sm sm:text-sm"
+              className="mt-2 w-full md:w-96 rounded-lg border-gray-200 border p-2 focus:outline-none focus:ring focus:border-indigo-600"
+              placeholder="Enter your review here..."
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
             />
           </label>
+
           <br />
+
           <button
             type="submit"
-            className="inline-block rounded border border-indigo-600 px-12 py-3 text-sm font-medium text-indigo-600 hover:bg-indigo-600 hover:text-white focus:outline-none focus:ring active:bg-indigo-500"
+            className="mt-8 inline-block rounded border border-slate-600 bg-slate-600 px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-slate-600 focus:outline-none focus:ring active:text-slate-500"
           >
             Add Review
           </button>
         </form>
       </div>
+      <ToastContainer />
     </section>
   );
 }

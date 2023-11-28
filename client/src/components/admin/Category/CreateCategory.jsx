@@ -7,6 +7,13 @@ import {
 } from 'firebase/storage';
 import { app } from '../../../firebase';
 import { useNavigate } from 'react-router-dom';
+import { Formik, Field, Form, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+
+const CreateCategorySchema = Yup.object().shape({
+  name: Yup.string().required('Name is required').min(10, 'Name must be at least 10 characters').max(62, 'Name must be at most 62 characters'),
+  description: Yup.string().required('Description is required'),
+});
 
 export default function CreateCategory() {
   const navigate = useNavigate();
@@ -21,7 +28,7 @@ export default function CreateCategory() {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleImageSubmit = (e) => {
+  const handleImageSubmit = () => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
       setUploading(true);
       setImageUploadError(false);
@@ -40,7 +47,7 @@ export default function CreateCategory() {
           setImageUploadError(false);
           setUploading(false);
         })
-        .catch((err) => {
+        .catch(() => {
           setImageUploadError('Image upload failed (2 mb max per image)');
           setUploading(false);
         });
@@ -82,15 +89,8 @@ export default function CreateCategory() {
     });
   };
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.id]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values, { setSubmitting }) => {
+    setSubmitting(true);
     try {
       if (formData.imageUrls.length < 1)
         return setError('You must upload at least one image');
@@ -102,7 +102,7 @@ export default function CreateCategory() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
+          ...values,
         }),
       });
       const data = await res.json();
@@ -114,6 +114,8 @@ export default function CreateCategory() {
     } catch (error) {
       setError(error.message);
       setLoading(false);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -122,86 +124,104 @@ export default function CreateCategory() {
       <h1 className='text-3xl font-semibold text-center my-7'>
         Create a Category
       </h1>
-      <form onSubmit={handleSubmit} className='flex flex-col sm:flex-row gap-4'>
-        <div className='flex flex-col gap-4 flex-1'>
-          <input
-            type='text'
-            placeholder='Name'
-            className='border p-3 rounded-lg'
-            id='name'
-            maxLength='62'
-            minLength='10'
-            required
-            onChange={handleChange}
-            value={formData.name}
-          />
-          <textarea
-            type='text'
-            placeholder='Description'
-            className='border p-3 rounded-lg'
-            id='description'
-            required
-            onChange={handleChange}
-            value={formData.description}
-          />
-        </div>
-        <div className='flex flex-col flex-1 gap-4'>
-          <p className='font-semibold'>
-            Images:
-            <span className='font-normal text-gray-600 ml-2'>
-            Limit the image size to a maximum of 2MB.
-            </span>
-          </p>
-          <div className='flex gap-4'>
-            <input
-              onChange={(e) => setFiles(e.target.files)}
-              className='p-3 border border-gray-300 rounded w-full'
-              type='file'
-              id='images'
-              accept='image/*'
-              multiple
-            />
-            <button
-              type='button'
-              disabled={uploading}
-              onClick={handleImageSubmit}
-              className='p-3 text-green-700 border border-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80'
-            >
-              {uploading ? 'Uploading...' : 'Upload'}
-            </button>
-          </div>
-          <p className='text-red-700 text-sm'>
-            {imageUploadError && imageUploadError}
-          </p>
-          {formData.imageUrls.length > 0 &&
-            formData.imageUrls.map((url, index) => (
-              <div
-                key={url}
-                className='flex justify-between p-3 border items-center'
-              >
-                <img
-                  src={url}
-                  alt='category image'
-                  className='w-20 h-20 object-contain rounded-lg'
+      <Formik
+        initialValues={{
+          name: formData.name,
+          description: formData.description,
+        }}
+        validationSchema={CreateCategorySchema}
+        onSubmit={handleSubmit}
+      >
+        {({ isSubmitting }) => (
+          <Form className='flex flex-col sm:flex-row gap-4'>
+            <div className='flex flex-col gap-4 flex-1'>
+              <Field
+                type='text'
+                placeholder='Name'
+                className='border p-3 rounded-lg'
+                id='name'
+                name='name'
+              />
+              <ErrorMessage
+                name='name'
+                component='p'
+                className='text-red-700 text-sm'
+              />
+              <Field
+                as='textarea'
+                type='text'
+                placeholder='Description'
+                className='border p-3 rounded-lg'
+                id='description'
+                name='description'
+              />
+              <ErrorMessage
+                name='description'
+                component='p'
+                className='text-red-700 text-sm'
+              />
+            </div>
+            <div className='flex flex-col flex-1 gap-4'>
+              <p className='font-semibold'>
+                Images:
+                <span className='font-normal text-gray-600 ml-2'>
+                  Limit the image size to a maximum of 2MB.
+                </span>
+              </p>
+              <div className='flex gap-4'>
+                <Field
+                  name='images'
+                  onChange={(e) => setFiles(e.target.files)}
+                  className='p-3 border border-gray-300 rounded w-full'
+                  type='file'
+                  id='images'
+                  accept='image/*'
+                  multiple
                 />
                 <button
                   type='button'
-                  onClick={() => handleRemoveImage(index)}
-                  className='p-3 text-red-700 rounded-lg uppercase hover:opacity-75'
+                  disabled={uploading}
+                  onClick={handleImageSubmit}
+                  className='p-3 text-green-700 border border-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80'
                 >
-                  Delete
+                  {uploading ? 'Uploading...' : 'Upload'}
                 </button>
               </div>
-            ))}
-          <button
-            disabled={loading || uploading}
-            className='p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
-          >
-            {loading ? 'Creating...' : 'Create category'}
-          </button>
-          {error && <p className='text-red-700 text-sm'>{error}</p>}
-        </div>
-      </form>
+              <p className='text-red-700 text-sm'>
+                {imageUploadError && imageUploadError}
+              </p>
+              {formData.imageUrls.length > 0 &&
+                formData.imageUrls.map((url, index) => (
+                  <div
+                    key={url}
+                    className='flex justify-between p-3 border items-center'
+                  >
+                    <img
+                      src={url}
+                      alt='category image'
+                      className='w-20 h-20 object-contain rounded-lg'
+                    />
+                    <button
+                      type='button'
+                      onClick={() => handleRemoveImage(index)}
+                      className='p-3 text-red-700 rounded-lg uppercase hover:opacity-75'
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              <button
+                type='submit'
+                disabled={loading || uploading || isSubmitting}
+                className='p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
+              >
+                {loading ? 'Creating...' : 'Create category'}
+              </button>
+              {error && <p className='text-red-700 text-sm'>{error}</p>}
+            </div>
+          </Form>
+        )}
+      </Formik>
     </main>
   );
 }

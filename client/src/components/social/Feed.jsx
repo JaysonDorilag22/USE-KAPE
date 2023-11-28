@@ -28,7 +28,7 @@ export default function Feed() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []); // Empty dependency array to run the effect only once on mount
+  }, []); 
 
   const isElementInViewport = (el) => {
     const rect = el.getBoundingClientRect();
@@ -40,15 +40,13 @@ export default function Feed() {
 
   const loadPosts = async () => {
     try {
-      // Fetch posts from the API (/api/post/get) using infinite scroll parameters
       const res = await fetch(`/api/post/get?offset=${posts.length}&limit=3`);
       const data = await res.json();
-      // Check if the response has an array of posts
+
       if (Array.isArray(data) && data.length > 0) {
-        // Update state with new posts
+
         setPosts((prevPosts) => [...prevPosts, ...data]);
 
-        // Update hasMore based on whether there are more posts
         setHasMore(data.length > 0);
       } else {
         console.error("Invalid data format. Expected an array of posts.");
@@ -231,12 +229,6 @@ export default function Feed() {
             {post.comments.map((comment) => (
               <div key={comment._id} className="chat chat-start">
                 <div className="chat-image avatar">
-                  <div className="w-10 rounded-full">
-                    <img
-                      src={comment.avatar} 
-                      alt="user-avatar"
-                    />
-                  </div>
                 </div>
                 <div className="chat-bubble">
                   <div className="font-semibold">{comment.username}</div>

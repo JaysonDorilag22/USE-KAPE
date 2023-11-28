@@ -6,6 +6,9 @@ import { signInStart, signInSuccess, signInFailure } from "../../redux/user/user
 import Oauth from '../OAuth';
 import { Formik, Field, ErrorMessage, Form } from 'formik';
 import * as Yup from 'yup';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function SignIn() {
   const { loading, error } = useSelector((state) => state.user);
@@ -20,21 +23,21 @@ export default function SignIn() {
   const handleSubmit = async (values) => {
     try {
       dispatch(signInStart());
-      const res = await fetch("/api/auth/signin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-      const data = await res.json();
-      if (data.success === false) {
+      
+      const response = await axios.post("/api/auth/signin", values);
+
+      if (response.data.success === false) {
         dispatch(signInFailure("Invalid email or password."));
         dispatch(signInSuccess(false));
+
+        toast.error("Invalid email or password. Please try again.");
+
         return;
       }
-      dispatch(signInSuccess(data));
-      if (data.role === 'Admin') {
+
+      dispatch(signInSuccess(response.data));
+
+      if (response.data.role === 'Admin') {
         navigate('/dashboard');
       } else {
         navigate('/');
@@ -42,6 +45,8 @@ export default function SignIn() {
     } catch (error) {
       dispatch(signInFailure("An error occurred while signing in."));
       dispatch(signInSuccess(false));
+
+      toast.error("An error occurred. Please try again. Invalid Credentials");
     }
   };
 
@@ -119,6 +124,7 @@ export default function SignIn() {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }
