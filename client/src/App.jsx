@@ -19,14 +19,14 @@ import OrderDetails from "./components/ecommerce/OrderDetails";
 import Footer from "./components/Footer";
 import NewPassword from "./components/user/NewPassword";
 import CategoryCard from "./components/ecommerce/Categories/CategoryCard";
-import CategoryProducts from "./components/ecommerce/Product/CategoryProducts";
+import CategoryProducts from "./components/ecommerce/Products/CategoryProducts";
 import Cart from "./components/ecommerce/Cart/Cart";
 import Checkout from "./components/ecommerce/Cart/Checkout";
 import OrderSucess from "./components/ecommerce/Cart/OrderSucess";
 import PagenotFound from "./pages/PagenotFound";
 import Feed from "./components/social/Feed";
 import EditPost from "./components/social/EditPost";
-import ProductDetails from "./components/ecommerce/Product/ProductDetails";
+import ProductDetails from "./components/ecommerce/Products/ProductDetails";
 
 
 // Admin pages

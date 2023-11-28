@@ -6,7 +6,7 @@ import slide3 from "../assets/images/slide3.jpg";
 import hero from "../assets/images/hero.jpg";
 import home from "../assets/images/home.jpg";
 import CategoryCards from "../components/ecommerce/Categories/CategoryCard";
-import ProductCards from "../components/ecommerce/Product/ProductCard";
+import ProductCards from "../components/ecommerce/Products/ProductCard";
 
 export default function Home() {
 
