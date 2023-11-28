@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Graphs from "./Graphs";
 
-export default function Dashboard() {
+export default function Dashboards() {
   const [totalSales, setTotalSales] = useState(0);
   const [deliveredOrdersCount, setDeliveredOrdersCount] = useState(0);
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
