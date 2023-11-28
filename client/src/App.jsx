@@ -19,6 +19,7 @@ import OrderDetails from "./components/ecommerce/OrderDetails";
 import Footer from "./components/Footer";
 import NewPassword from "./components/user/NewPassword";
 import CategoryCard from "./components/ecommerce/Category/CategoryCard";
+
 import CategoryProducts from "./components/ecommerce/Product/CategoryProducts";
 import Cart from "./components/ecommerce/Cart/Cart";
 import Checkout from "./components/ecommerce/Cart/Checkout";
