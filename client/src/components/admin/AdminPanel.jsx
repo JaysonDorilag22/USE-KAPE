@@ -1,6 +1,6 @@
 import React from "react";
 import Sidebar from "../Sidebar";
-import Dashboard from "./Dashboard"; 
+import Dashboard from "./Dashboard";
 
 export default function AdminPanel() {
   return (
